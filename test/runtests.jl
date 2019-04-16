@@ -47,11 +47,29 @@ end
     @test rd"-1y" + Date(2014,1,1) == Date(2013,1,1)
 end
 
+@testset "relative add daymonths" begin
+    @test rd"12MAR" + Date(2018,3,3) == Date(2018,3,12)
+    @test rd"1JAN" + Date(2019,12,31) == Date(2019,1,1)
+    @test rd"1JAN" + Date(2020,1,1) == Date(2020,1,1)
+end
+
+@testset "relative add easter" begin
+    @test rd"0E" + Date(2018,3,3) == Date(2018,4,1)
+    @test rd"0E" + Date(2018,12,3) == Date(2018,4,1)
+    @test rd"1E" + Date(2018,3,3) == Date(2019,4,21)
+    @test rd"-1E" + Date(2018,3,3) == Date(2017,4,16)
+end
+
 @testset "relative add weekdays" begin
     @test rd"1MON" + Date(2017,10,25) == Date(2017,10,30)
     @test rd"10SAT" + Date(2017,10,25) == Date(2017,12,30)
     @test rd"-1WED" + Date(2017,10,25) == Date(2017,10,18)
     @test rd"-10FRI" + Date(2017,10,25) == Date(2017,8,18)
+    @test rd"-1TUE" + Date(2017,10,25) == Date(2017,10,24)
+end
+
+@testset "bad negations" begin
+    @test_throws ErrorException rd"1d" - rd"1st MON"
 end
 
 @testset "relative add nth weekdays" begin
@@ -86,4 +104,14 @@ end
     @test rd"1d-1d+1d-1d" + Date(2017,10,26) == Date(2017,10,26)
     @test rd"2*3d+1d" + Date(2019,4,16) == Date(2019,4,23)
     @test rd"2*(3d+1d)" + Date(2019,4,16) == Date(2019,4,24)
+    @test rd"2d-1E" + Date(2019,4,16) == Date(2018,4,1)
+    @test rd"1d" - rd"2*1d" + Date(2019,5,1) == Date(2019,4,30)
+    @test 3*rd"1d" + Date(2017,4,14) == Date(2017,4,17)
+    @test rd"1d"*3 + Date(2017,4,14) == Date(2017,4,17)
+end
+
+@testset "rdate ranges" begin
+    @test collect(range(Date(2017,1,1), Date(2017,1,3), rd"1d")) == [Date(2017,1,1), Date(2017,1,2), Date(2017,1,3)]
+    @test collect(range(Date(2017,1,1), Date(2017,1,3), rd"2d")) == [Date(2017,1,1), Date(2017,1,3)]
+    @test collect(range(Date(2017,1,1), Date(2017,1,18), rd"1d+1w")) == [Date(2017,1,1), Date(2017,1,9), Date(2017,1,17)]
 end
