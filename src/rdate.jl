@@ -71,6 +71,35 @@ end
 
 negate(rdate::RDateEaster) = RDateEaster(-rdate.yearδ)
 
+struct RDateNthWeekdays <: RDate
+    dayofweek::Int64
+    period::Int64
+end
+
+function apply(rdate::RDateNthWeekdays, date::Date)
+    wd = dayofweek(date)
+    wd1st = mod(wd - mod(day(date), 7), 7) + 1
+    wd1stdiff = wd1st - rdate.dayofweek
+    period = wd1stdiff > 0 ? rdate.period : rdate.period - 1
+    days = 7*period - wd1stdiff + 1
+    return Date(year(date), month(date), days)
+end
+
+struct RDateNthLastWeekdays <: RDate
+    dayofweek::Int64
+    period::Int64
+end
+
+function apply(rdate::RDateNthLastWeekdays, date::Date)
+    ldom = RDateLDOM() + date
+    ldom_dow = dayofweek(ldom)
+    ldom_dow_diff = ldom_dow - rdate.dayofweek
+    period = ldom_dow_diff >= 0 ? rdate.period - 1 : rdate.period
+    days_to_sub = 7*period + ldom_dow_diff
+    days = day(ldom) - days_to_sub
+    return Date(year(date), month(date), days)
+end
+
 struct RDateWeekdays <: RDate
     dayofweek::Int64
     count::Int64
@@ -82,11 +111,11 @@ function apply(rdate::RDateWeekdays, date::Date)
 
     if rdate.count < 0 && dayδ > 0
         weekδ += 1
-        weekδ -= 1
     elseif rdate.count > 0 && dayδ < 0
+        weekδ -= 1
     end
 
-    return date + Day(weekδ*7 + dayδ)
+    return date + Day(weekδ*7 - dayδ)
 end
 
 negate(rdate::RDateWeekdays) = RDateWeekdays(rdate.dayofweek, -rdate.count)
@@ -94,6 +123,7 @@ negate(rdate::RDateWeekdays) = RDateWeekdays(rdate.dayofweek, -rdate.count)
 struct RDateCompound <: RDate
     parts::Vector{RDate}
 end
+Base.:(==)(x::RDateCompound, y::RDateCompound) = x.parts == y.parts
 
 apply(rdate::RDateCompound, date::Date) = Base.foldl(apply, rdate.parts, init=date)
 combine(left::RDate, right::RDate) = RDateCompound([left,right])

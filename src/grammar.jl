@@ -3,6 +3,10 @@ using Dates
 
 const WEEKDAYS = Dict(zip(map(uppercase, Dates.ENGLISH.days_of_week_abbr),range(1,stop=7)))
 const MONTHS = Dict(zip(map(uppercase, Dates.ENGLISH.months_abbr),range(1,stop=12)))
+const PERIODS = Dict(
+    "1st" => 1, "2nd" => 2, "3rd" => 3, "4th" => 4, "5th" => 5,
+    "Last" => 1, "2nd Last" => 2, "3rd Last" => 3, "4th Last" => 4, "5th Last" => 5)
+
 space = Drop(Star(Space()))
 
 PNonZeroInt64() = Parse(p"-?[1-9][0-9]*", Int64)
@@ -21,8 +25,10 @@ PPosInt64() = Parse(p"[1-9][0-9]*", Int64)
     month_short = Alt(map(x -> Pattern(uppercase(x)), Dates.ENGLISH.months_abbr)...)
     weekday = PNonZeroInt64() + weekday_short > (i,wd) -> RDateWeekdays(WEEKDAYS[wd], i)
     day_month = PPosInt64() + month_short > (d,m) -> RDateDayMonth(d,MONTHS[m])
+    nth_weekdays = (p"1st" | p"2nd" | p"3rd" | p"4th" | p"5th") + space + weekday_short > (p,wd) -> RDateNthWeekdays(WEEKDAYS[wd], PERIODS[p])
+    nth_last_weekdays = (p"Last" | p"2nd Last" | p"3rd Last" | p"4th Last" | p"5th Last") + space + weekday_short > (p,wd) -> RDateNthLastWeekdays(WEEKDAYS[wd], PERIODS[p])
 
-    rdate_term = d | w | m | y | fdom | ldom | easter | weekday | day_month
+    rdate_term = d | w | m | y | fdom | ldom | easter | weekday | day_month | nth_weekdays | nth_last_weekdays
     rdate = rdate_term | (E"(" + space + sum + space + E")")
 
     # Add support for multiple negatives --2d for example...
