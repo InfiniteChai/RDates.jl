@@ -150,9 +150,6 @@ struct RDateRange
     period::RDate
     inc_from::Bool
     inc_to::Bool
-
-    RDateRange(from::Date, period::RDate) = new(from, Nothing, period, true, true)
-    RDateRange(from::Date, to::Date, period::RDate) = new(from, to, period, true, true)
 end
 
 function Base.iterate(iter::RDateRange, state=nothing)
@@ -160,7 +157,8 @@ function Base.iterate(iter::RDateRange, state=nothing)
         state = (iter.inc_from ? iter.from : iter.from + iter.period, 0)
     end
     elem, count = state
-    if elem > iter.to
+    op = iter.inc_to ? Base.:> : Base.:>=
+    if op(elem,iter.to)
         return nothing
     end
 
@@ -169,5 +167,10 @@ end
 Base.IteratorSize(it::RDateRange) = Base.SizeUnknown()
 eltype(::Type{RDateRange}) = eltype(Date)
 
-Base.range(from::Date, period::RDate) = RDateRange(from, period)
-Base.range(from::Date, to::Date, period::RDate) = RDateRange(from, to, period)
+function Base.range(from::Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true)
+    return RDateRange(from, Nothing, period, inc_from, inc_to)
+end
+
+function Base.range(from::Date, to::Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true)
+    return RDateRange(from, to, period, inc_from, inc_to)
+end

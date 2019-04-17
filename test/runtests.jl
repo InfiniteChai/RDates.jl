@@ -1,6 +1,7 @@
 using Test
 using RDates
 using Dates
+using ParserCombinator
 
 @testset "rdate add ordering" begin
     @test rd"1d" + Date(2019,4,16) == Date(2019,4,17)
@@ -114,4 +115,20 @@ end
     @test collect(range(Date(2017,1,1), Date(2017,1,3), rd"1d")) == [Date(2017,1,1), Date(2017,1,2), Date(2017,1,3)]
     @test collect(range(Date(2017,1,1), Date(2017,1,3), rd"2d")) == [Date(2017,1,1), Date(2017,1,3)]
     @test collect(range(Date(2017,1,1), Date(2017,1,18), rd"1d+1w")) == [Date(2017,1,1), Date(2017,1,9), Date(2017,1,17)]
+    @test collect(range(Date(2017,1,1), Date(2017,1,3), rd"1d", inc_from=false)) == [Date(2017,1,2), Date(2017,1,3)]
+    @test collect(range(Date(2017,1,1), Date(2017,1,3), rd"1d", inc_to=false)) == [Date(2017,1,1), Date(2017,1,2)]
+    @test collect(range(Date(2017,1,1), Date(2017,1,3), rd"1d", inc_from=false, inc_to=false)) == [Date(2017,1,2)]
+end
+
+@testset "rdate parsing methods" begin
+    @test rdate("1d") == rd"1d"
+    @test rdate("3*2d") == rd"3*2d"
+end
+
+@testset "fail to parse bad rdates" begin
+    @test_throws ErrorException rdate("1*2")
+    @test_throws ParserCombinator.ParserException rdate("1dw")
+    @test_throws ParserCombinator.ParserException rdate("+2d")
+    @test_throws ParserCombinator.ParserException rdate("2d+")
+    @test_throws ParserCombinator.ParserException rdate("d")
 end

@@ -29,11 +29,11 @@ PPosInt64() = Parse(p"[1-9][0-9]*", Int64)
     nth_last_weekdays = (p"Last" | p"2nd Last" | p"3rd Last" | p"4th Last" | p"5th Last") + space + weekday_short > (p,wd) -> RDateNthLastWeekdays(WEEKDAYS[wd], PERIODS[p])
 
     rdate_term = d | w | m | y | fdom | ldom | easter | weekday | day_month | nth_weekdays | nth_last_weekdays
-    rdate = rdate_term | (E"(" + space + sum + space + E")")
+    rdate_expr = rdate_term | (E"(" + space + sum + space + E")")
 
     # Add support for multiple negatives --2d for example...
     neg = Delayed()
-    neg.matcher = rdate | (E"-" + neg > negate)
+    neg.matcher = rdate_expr | (E"-" + neg > negate)
 
     mul = E"*" + (neg | PPosInt64())
     prod = (neg | ((PPosInt64() | neg) + mul[0:end])) |> Base.prod
@@ -41,9 +41,17 @@ PPosInt64() = Parse(p"[1-9][0-9]*", Int64)
     sub = E"-" + prod > negate
     sum.matcher = prod + (add | sub)[0:end] |> x -> length(x) == 1 ? x[1] : RDateCompound(x)
 
-    rdate_expr = sum + Eos()
+    entry = sum + Eos()
 end
 
-macro rd_str(arg)
-    return parse_one(arg, rdate_expr)[1]
+macro rd_str(arg::String)
+    val = parse_one(arg, entry)[1]
+    isa(val, RDate) || error("Unable to parse $(arg) as RDate")
+    return val
+end
+
+function rdate(arg::String)
+    val = parse_one(arg, entry)[1]
+    isa(val, RDate) || error("Unable to parse $(arg) as RDate")
+    return val
 end
