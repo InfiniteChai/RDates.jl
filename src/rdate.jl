@@ -158,17 +158,17 @@ function Base.iterate(iter::RDateRange, state=nothing)
     end
     elem, count = state
     op = iter.inc_to ? Base.:> : Base.:>=
-    if op(elem,iter.to)
+    if iter.to !== nothing && op(elem,iter.to)
         return nothing
     end
 
     return (elem, (elem + iter.period, count + 1))
 end
-Base.IteratorSize(it::RDateRange) = Base.SizeUnknown()
-eltype(::Type{RDateRange}) = eltype(Date)
 
+Base.IteratorSize(::Type{RDateRange}) = Base.SizeUnknown()
+eltype(::Type{RDateRange}) = eltype(Date)
 function Base.range(from::Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true)
-    return RDateRange(from, Nothing, period, inc_from, inc_to)
+    return RDateRange(from, nothing, period, inc_from, inc_to)
 end
 
 function Base.range(from::Date, to::Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true)
