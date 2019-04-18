@@ -166,7 +166,7 @@ function Base.iterate(iter::RDateRange, state=nothing)
 end
 
 Base.IteratorSize(::Type{RDateRange}) = Base.SizeUnknown()
-eltype(::Type{RDateRange}) = eltype(Date)
+Base.eltype(::Type{RDateRange}) = Date
 function Base.range(from::Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true)
     return RDateRange(from, nothing, period, inc_from, inc_to)
 end
