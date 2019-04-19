@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.com/InfiniteChai/RDates.jl.svg?branch=master)](https://travis-ci.com/InfiniteChai/RDates.jl)
 [![Coverage Status](https://coveralls.io/repos/github/InfiniteChai/RDates.jl/badge.svg)](https://coveralls.io/github/InfiniteChai/RDates.jl)
 
-Relative date library for Julia, built around the Dates package. Aims to provide a generic, extendable algebra for relative date operations.
+Relative date library for Julia, built around the Dates package. Aims to provide a generic, extendable algebra for relative date operations and aiming for long term support of holiday calendar systems as well.
 
 ## Basic Usage
 
