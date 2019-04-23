@@ -23,32 +23,54 @@ end
 apply(rdate::Week, date::Dates.Date) = date + Dates.Week(rdate.weeks)
 negate(rdate::Week) = Week(-rdate.weeks)
 
-struct Month <: RDate
-    months::Int64
-end
-
-apply(rdate::Month, date::Dates.Date) = date + Dates.Month(rdate.months)
-negate(rdate::Month) = Month(-rdate.months)
-
-struct Year <: RDate
-    years::Int64
-end
-
-apply(rdate::Year, date::Dates.Date) = date + Dates.Year(rdate.years)
-negate(rdate::Year) = Year(-rdate.years)
-
 struct FDOM <: RDate end
 apply(rdate::FDOM, date::Dates.Date) = Dates.firstdayofmonth(date)
 
 struct LDOM <: RDate end
 apply(rdate::LDOM, date::Dates.Date) = Dates.lastdayofmonth(date)
 
+struct Month <: RDate
+    months::Int64
+    idc::InvalidDay.InvalidDayConvention
+    mic::MonthIncrement.MonthIncrementConvention
+
+    Month(months::Int64) = new(months, InvalidDay.LDOM, MonthIncrement.PDOM)
+    Month(months::Int64, idc::InvalidDay.InvalidDayConvention, mic::MonthIncrement.MonthIncrementConvention) = new(months, idc, mic)
+end
+
+function apply(rdate::Month, date::Dates.Date)
+    y,m,d = Dates.yearmonthday(date)
+    ny = Dates.yearwrap(y, m, rdate.months)
+    nm = Dates.monthwrap(m, rdate.months)
+    (ay, am, ad) = MonthIncrement.adjust(rdate.mic, d, m, y, nm, ny)
+    ld = Dates.daysinmonth(ay, am)
+    return ad <= ld ? Dates.Date(ay, am, ad) : InvalidDay.adjust(rdate.idc, ad, am, ay)
+end
+
+negate(rdate::Month) = Month(-rdate.months)
+
+struct Year <: RDate
+    years::Int64
+    idm::InvalidDay.InvalidDayConvention
+
+    Year(years::Int64) = new(years, InvalidDay.LDOM)
+    Year(years::Int64, idm::InvalidDay.InvalidDayConvention) = new(years, idm)
+end
+
+function apply(rdate::Year, date::Dates.Date)
+    oy, m, d = Dates.yearmonthday(date)
+    ny = oy + rdate.years
+    ld = Dates.daysinmonth(ny, m)
+    return d <= ld ? Dates.Date(ny, m, d) : InvalidDay.adjust(rdate.idm, d, m, ny)
+end
+
+negate(rdate::Year) = Year(-rdate.years)
+
 struct DayMonth <: RDate
     day::Int64
     month::Int64
 
     DayMonth(day::Int64, month::Int64) = new(day, month)
-    DayMonth(day::Int64, month::Symbol) = new(day, MONTHS[month])
 end
 
 apply(rdate::DayMonth, date::Dates.Date) = Dates.Date(Dates.year(date), rdate.month, rdate.day)
@@ -82,7 +104,6 @@ struct NthWeekdays <: RDate
     period::Int64
 
     NthWeekdays(dayofweek::Int64, period::Int64) = new(dayofweek, period)
-    NthWeekdays(dayofweek::Symbol, period::Int64) = new(WEEKDAYS[dayofweek], period)
 end
 
 function apply(rdate::NthWeekdays, date::Dates.Date)
@@ -99,7 +120,6 @@ struct NthLastWeekdays <: RDate
     period::Int64
 
     NthLastWeekdays(dayofweek::Int64, period::Int64) = new(dayofweek, period)
-    NthLastWeekdays(dayofweek::Symbol, period::Int64) = new(WEEKDAYS[dayofweek], period)
 end
 
 function apply(rdate::NthLastWeekdays, date::Dates.Date)
@@ -117,7 +137,6 @@ struct Weekdays <: RDate
     count::Int64
 
     Weekdays(dayofweek::Int64, count::Int64) = new(dayofweek, count)
-    Weekdays(dayofweek::Symbol, count::Int64) = new(WEEKDAYS[dayofweek], count)
 end
 
 function apply(rdate::Weekdays, date::Dates.Date)
