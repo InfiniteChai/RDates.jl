@@ -14,10 +14,10 @@ end
     @test RDates.Day(1) == rd"1d"
     @test RDates.Day(2) + RDates.Week(3) == rd"2d + 3w"
     @test 2 * (RDates.Year(3) + RDates.Month(1)) == rd"2*(3y + 1m)"
-    @test RDates.Weekdays(:MON, 3) == rd"3MON"
-    @test RDates.DayMonth(23, :FEB) == rd"23FEB"
-    @test RDates.NthWeekdays(:FRI, 1) == rd"1st FRI"
-    @test RDates.NthLastWeekdays(:SUN, 2) == rd"2nd Last SUN"
+    @test RDates.Weekdays(Mon, 3) == rd"3MON"
+    @test RDates.DayMonth(23, Feb) == rd"23FEB"
+    @test RDates.NthWeekdays(Fri, 1) == rd"1st FRI"
+    @test RDates.NthLastWeekdays(Sun, 2) == rd"2nd Last SUN"
 end
 
 @testset "rdate whitespace" begin
