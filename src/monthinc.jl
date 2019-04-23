@@ -18,4 +18,6 @@ end
 const PDOM = PreserveDayOfMonth()
 const PDOMEOM = PreserveDayOfMonthEOM()
 
+const MAPPINGS = Dict("PDOM" => PDOM, "PDOMEOM" => PDOMEOM)
+
 end # Module

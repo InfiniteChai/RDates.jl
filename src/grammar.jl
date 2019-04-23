@@ -15,7 +15,9 @@ PPosInt64() = Parse(p"[1-9][0-9]*", Int64)
     d = PInt64() + E"d" > Day
     w = PInt64() + E"w" > Week
     m = PInt64() + E"m" > Month
+    enhanced_m = PInt64() + E"m[" + Alt(map(Pattern, collect(keys(InvalidDay.MAPPINGS)))...) + E";" + Alt(map(Pattern, collect(keys(MonthIncrement.MAPPINGS)))...) + E"]" > (d,idc,mic) -> Month(d, InvalidDay.MAPPINGS[idc], MonthIncrement.MAPPINGS[mic])
     y = PInt64() + E"y" > Year
+    enhanced_y = PInt64() + E"y[" + Alt(map(Pattern, collect(keys(InvalidDay.MAPPINGS)))...)+ E"]" > (d,idc) -> Year(d, InvalidDay.MAPPINGS[idc])
     fdom = E"FDOM" > FDOM
     ldom = E"LDOM" > LDOM
     easter = PInt64() + E"E" > Easter
@@ -26,7 +28,7 @@ PPosInt64() = Parse(p"[1-9][0-9]*", Int64)
     nth_weekdays = (p"1st" | p"2nd" | p"3rd" | p"4th" | p"5th") + space + weekday_short > (p,wd) -> NthWeekdays(WEEKDAYS[Symbol(wd)], PERIODS[p])
     nth_last_weekdays = (p"Last" | p"2nd Last" | p"3rd Last" | p"4th Last" | p"5th Last") + space + weekday_short > (p,wd) -> NthLastWeekdays(WEEKDAYS[Symbol(wd)], PERIODS[p])
 
-    rdate_term = d | w | m | y | fdom | ldom | easter | weekday | day_month | nth_weekdays | nth_last_weekdays
+    rdate_term = d | w | m | enhanced_m | y | enhanced_y | fdom | ldom | easter | weekday | day_month | nth_weekdays | nth_last_weekdays
     rdate_expr = rdate_term | (E"(" + space + sum + space + E")")
 
     # Add support for multiple negatives --2d for example...

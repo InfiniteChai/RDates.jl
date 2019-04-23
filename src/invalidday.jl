@@ -22,4 +22,6 @@ const LDOM = LastDayOfMonth()
 const FDONM = FirstDayOfNextMonth()
 const NDONM = NthDayOfNextMonth()
 
+const MAPPINGS = Dict("LDOM" => LDOM, "FDONM" => FDONM, "NDONM" => NDONM)
+
 end # module InvDay
