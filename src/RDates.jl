@@ -1,5 +1,8 @@
 module RDates
 
+include("monthinc.jl")
+include("invalidday.jl")
+
 include("rdate.jl")
 include("grammar.jl")
 

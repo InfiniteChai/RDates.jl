@@ -29,61 +29,39 @@ apply(rdate::FDOM, date::Dates.Date) = Dates.firstdayofmonth(date)
 struct LDOM <: RDate end
 apply(rdate::LDOM, date::Dates.Date) = Dates.lastdayofmonth(date)
 
-@compat abstract type InvalidDayMethod end
-adjust(idm::InvalidDayMethod, day, month, year) = error("Needs implementation")
-struct LastDayOfMonthIDM <: InvalidDayMethod end
-adjust(idm::LastDayOfMonthIDM, day, month, year) = Dates.Date(year, month, Dates.daysinmonth(year, month))
-struct FirstDayOfNextMonthIDM <: InvalidDayMethod end
-adjust(idm::FirstDayOfNextMonthIDM, day, month, year) = month == 12 ? Dates.Date(year+1, 1, 1) : Dates.Date(year, month+1, 1)
-struct NthDayOfNextMonthIDM <: InvalidDayMethod end
-function adjust(idm::NthDayOfNextMonthIDM, day, month, year)
-    dayδ = day - Dates.daysinmonth(year, month)
-    return month == 12 ? Dates.Date(year+1, 1, dayδ) : Dates.Date(year, month+1, dayδ)
-end
-
-@compat abstract type MonthIncrementMethod end
-adjust(mim::MonthIncrementMethod, day, month, year, new_month, new_year) = error("Needs implementation")
-struct PreserveDayOfMonth <: MonthIncrementMethod end
-adjust(mim::PreserveDayOfMonth, day, month, year, new_month, new_year) = (new_year, new_month, day)
-struct PreserveDayOfMonthEOM <: MonthIncrementMethod end
-function adjust(mim::PreserveDayOfMonthEOM, day, month, year, new_month, new_year)
-    ld = Dates.daysinmonth(year, month)
-    return (new_year, new_month, day == ld ? Dates.daysinmonth(new_year, new_month) : day)
-end
-
 struct Month <: RDate
     months::Int64
-    idm::InvalidDayMethod
-    mim::MonthIncrementMethod
+    idc::InvalidDay.InvalidDayConvention
+    mic::MonthIncrement.MonthIncrementConvention
 
-    Month(months::Int64) = new(months, LastDayOfMonthIDM(), PreserveDayOfMonth())
-    Month(months::Int64, idm::InvalidDayMethod, mim::MonthIncrementMethod) = new(months, idm, mim)
+    Month(months::Int64) = new(months, InvalidDay.LDOM, MonthIncrement.PDOM)
+    Month(months::Int64, idc::InvalidDay.InvalidDayConvention, mic::MonthIncrement.MonthIncrementConvention) = new(months, idc, mic)
 end
 
 function apply(rdate::Month, date::Dates.Date)
     y,m,d = Dates.yearmonthday(date)
     ny = Dates.yearwrap(y, m, rdate.months)
     nm = Dates.monthwrap(m, rdate.months)
-    (ay, am, ad) = adjust(rdate.mim, d, m, y, nm, ny)
+    (ay, am, ad) = MonthIncrement.adjust(rdate.mic, d, m, y, nm, ny)
     ld = Dates.daysinmonth(ay, am)
-    return ad <= ld ? Dates.Date(ay, am, ad) : adjust(rdate.idm, ad, am, ay)
+    return ad <= ld ? Dates.Date(ay, am, ad) : InvalidDay.adjust(rdate.idc, ad, am, ay)
 end
 
 negate(rdate::Month) = Month(-rdate.months)
 
 struct Year <: RDate
     years::Int64
-    idm::InvalidDayMethod
+    idm::InvalidDay.InvalidDayConvention
 
-    Year(years::Int64) = new(years, LastDayOfMonthIDM())
-    Year(years::Int64, idm::InvalidDayMethod) = new(years, idm)
+    Year(years::Int64) = new(years, InvalidDay.LDOM)
+    Year(years::Int64, idm::InvalidDay.InvalidDayConvention) = new(years, idm)
 end
 
 function apply(rdate::Year, date::Dates.Date)
     oy, m, d = Dates.yearmonthday(date)
     ny = oy + rdate.years
     ld = Dates.daysinmonth(ny, m)
-    return d <= ld ? Dates.Date(ny, m, d) : adjust(rdate.idm, d, m, ny)
+    return d <= ld ? Dates.Date(ny, m, d) : InvalidDay.adjust(rdate.idm, d, m, ny)
 end
 
 negate(rdate::Year) = Year(-rdate.years)
