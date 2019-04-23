@@ -1,57 +1,63 @@
-using Dates
+import Dates
 using Compat
 
+const WEEKDAYS = Dict(zip(map(Symbol ∘ uppercase, Dates.ENGLISH.days_of_week_abbr),range(1,stop=7)))
+const MONTHS = Dict(zip(map(Symbol ∘ uppercase, Dates.ENGLISH.months_abbr),range(1,stop=12)))
+
 @compat abstract type RDate end
-apply(rdate::RDate, date::Date) = error("$(typeof(rdate)) does not support 'apply'")
-apply(date::Date, rdate::RDate) = apply(rdate, date)
+apply(rdate::RDate, date::Dates.Date) = error("$(typeof(rdate)) does not support 'apply'")
+apply(date::Dates.Date, rdate::RDate) = apply(rdate, date)
 negate(rdate::RDate) = error("$(typeof(rdate)) does not support 'negate'")
 
-struct RDateDay <: RDate
+struct Day <: RDate
     days::Int64
 end
 
-apply(rdate::RDateDay, date::Date) = date + Day(rdate.days)
-negate(rdate::RDateDay) = RDateDay(-rdate.days)
+apply(rdate::Day, date::Dates.Date) = date + Dates.Day(rdate.days)
+negate(rdate::Day) = Day(-rdate.days)
 
-struct RDateWeek <: RDate
+struct Week <: RDate
     weeks::Int64
 end
 
-apply(rdate::RDateWeek, date::Date) = date + Week(rdate.weeks)
-negate(rdate::RDateWeek) = RDateWeek(-rdate.weeks)
+apply(rdate::Week, date::Dates.Date) = date + Dates.Week(rdate.weeks)
+negate(rdate::Week) = Week(-rdate.weeks)
 
-struct RDateMonth <: RDate
+struct Month <: RDate
     months::Int64
 end
 
-apply(rdate::RDateMonth, date::Date) = date + Month(rdate.months)
-negate(rdate::RDateMonth) = RDateMonth(-rdate.months)
+apply(rdate::Month, date::Dates.Date) = date + Dates.Month(rdate.months)
+negate(rdate::Month) = Month(-rdate.months)
 
-struct RDateYear <: RDate
+struct Year <: RDate
     years::Int64
 end
 
-apply(rdate::RDateYear, date::Date) = date + Year(rdate.years)
-negate(rdate::RDateYear) = RDateYear(-rdate.years)
+apply(rdate::Year, date::Dates.Date) = date + Dates.Year(rdate.years)
+negate(rdate::Year) = Year(-rdate.years)
 
-struct RDateFDOM <: RDate end
-apply(rdate::RDateFDOM, date::Date) = firstdayofmonth(date)
+struct FDOM <: RDate end
+apply(rdate::FDOM, date::Dates.Date) = Dates.firstdayofmonth(date)
 
-struct RDateLDOM <: RDate end
-apply(rdate::RDateLDOM, date::Date) = lastdayofmonth(date)
+struct LDOM <: RDate end
+apply(rdate::LDOM, date::Dates.Date) = Dates.lastdayofmonth(date)
 
-struct RDateDayMonth <: RDate
+struct DayMonth <: RDate
     day::Int64
     month::Int64
+
+    DayMonth(day::Int64, month::Int64) = new(day, month)
+    DayMonth(day::Int64, month::Symbol) = new(day, MONTHS[month])
 end
 
-apply(rdate::RDateDayMonth, date::Date) = Date(year(date), rdate.month, rdate.day)
+apply(rdate::DayMonth, date::Dates.Date) = Dates.Date(Dates.year(date), rdate.month, rdate.day)
 
-struct RDateEaster <: RDate
+struct Easter <: RDate
     yearδ::Int64
 end
-function apply(rdate::RDateEaster, date::Date)
-    y = year(date) + rdate.yearδ
+function apply(rdate::Easter, date::Dates.Date)
+    y = Dates.year(date) + rdate.yearδ
     a = rem(y, 19)
     b = div(y, 100)
     c = rem(y, 100)
@@ -66,47 +72,56 @@ function apply(rdate::RDateEaster, date::Date)
     m = div(a + 11*h + 22*l, 451)
     n = div(h + l - 7*m + 114, 31)
     p = rem(h + l - 7*m + 114, 31)
-    return Date(y, n, p + 1)
+    return Dates.Date(y, n, p + 1)
 end
 
-negate(rdate::RDateEaster) = RDateEaster(-rdate.yearδ)
+negate(rdate::Easter) = Easter(-rdate.yearδ)
 
-struct RDateNthWeekdays <: RDate
+struct NthWeekdays <: RDate
     dayofweek::Int64
     period::Int64
+
+    NthWeekdays(dayofweek::Int64, period::Int64) = new(dayofweek, period)
+    NthWeekdays(dayofweek::Symbol, period::Int64) = new(WEEKDAYS[dayofweek], period)
 end
 
-function apply(rdate::RDateNthWeekdays, date::Date)
-    wd = dayofweek(date)
-    wd1st = mod(wd - mod(day(date), 7), 7) + 1
+function apply(rdate::NthWeekdays, date::Dates.Date)
+    wd = Dates.dayofweek(date)
+    wd1st = mod(wd - mod(Dates.day(date), 7), 7) + 1
     wd1stdiff = wd1st - rdate.dayofweek
     period = wd1stdiff > 0 ? rdate.period : rdate.period - 1
     days = 7*period - wd1stdiff + 1
-    return Date(year(date), month(date), days)
+    return Dates.Date(Dates.year(date), Dates.month(date), days)
 end
 
-struct RDateNthLastWeekdays <: RDate
+struct NthLastWeekdays <: RDate
     dayofweek::Int64
     period::Int64
+
+    NthLastWeekdays(dayofweek::Int64, period::Int64) = new(dayofweek, period)
+    NthLastWeekdays(dayofweek::Symbol, period::Int64) = new(WEEKDAYS[dayofweek], period)
 end
 
-function apply(rdate::RDateNthLastWeekdays, date::Date)
-    ldom = RDateLDOM() + date
-    ldom_dow = dayofweek(ldom)
+function apply(rdate::NthLastWeekdays, date::Dates.Date)
+    ldom = LDOM() + date
+    ldom_dow = Dates.dayofweek(ldom)
     ldom_dow_diff = ldom_dow - rdate.dayofweek
     period = ldom_dow_diff >= 0 ? rdate.period - 1 : rdate.period
     days_to_sub = 7*period + ldom_dow_diff
-    days = day(ldom) - days_to_sub
-    return Date(year(date), month(date), days)
+    days = Dates.day(ldom) - days_to_sub
+    return Dates.Date(Dates.year(date), Dates.month(date), days)
 end
 
-struct RDateWeekdays <: RDate
+struct Weekdays <: RDate
     dayofweek::Int64
     count::Int64
+
+    Weekdays(dayofweek::Int64, count::Int64) = new(dayofweek, count)
+    Weekdays(dayofweek::Symbol, count::Int64) = new(WEEKDAYS[dayofweek], count)
 end
 
-function apply(rdate::RDateWeekdays, date::Date)
-    dayδ = dayofweek(date) - rdate.dayofweek
+function apply(rdate::Weekdays, date::Dates.Date)
+    dayδ = Dates.dayofweek(date) - rdate.dayofweek
     weekδ = rdate.count
 
     if rdate.count < 0 && dayδ > 0
@@ -115,38 +130,39 @@ function apply(rdate::RDateWeekdays, date::Date)
         weekδ -= 1
     end
 
-    return date + Day(weekδ*7 - dayδ)
+    return date + Dates.Day(weekδ*7 - dayδ)
 end
 
-negate(rdate::RDateWeekdays) = RDateWeekdays(rdate.dayofweek, -rdate.count)
+negate(rdate::Weekdays) = Weekdays(rdate.dayofweek, -rdate.count)
 
 struct RDateCompound <: RDate
     parts::Vector{RDate}
 end
 Base.:(==)(x::RDateCompound, y::RDateCompound) = x.parts == y.parts
 
-apply(rdate::RDateCompound, date::Date) = Base.foldl(apply, rdate.parts, init=date)
+apply(rdate::RDateCompound, date::Dates.Date) = Base.foldl(apply, rdate.parts, init=date)
 combine(left::RDate, right::RDate) = RDateCompound([left,right])
 
 struct RDateRepeat <: RDate
     count::Int64
     part::RDate
 end
+Base.:(==)(x::RDateRepeat, y::RDateRepeat) = x.count == y.count && x.part == y.part
 
-apply(rdate::RDateRepeat, date::Date) = Base.foldl(apply, fill(rdate.part, rdate.count), init=date)
+apply(rdate::RDateRepeat, date::Dates.Date) = Base.foldl(apply, fill(rdate.part, rdate.count), init=date)
 negate(rdate::RDateRepeat) = RDateRepeat(rdate.count, negate(rdate.part))
 
-Base.:+(rdate::RDate, date::Date) = apply(rdate, date)
+Base.:+(rdate::RDate, date::Dates.Date) = apply(rdate, date)
 Base.:+(left::RDate, right::RDate) = combine(left, right)
 Base.:-(left::RDate, right::RDate) = combine(left, negate(right))
-Base.:+(date::Date, rdate::RDate) = apply(rdate, date)
-Base.:-(date::Date, rdate::RDate) = apply(negate(rdate), date)
+Base.:+(date::Dates.Date, rdate::RDate) = apply(rdate, date)
+Base.:-(date::Dates.Date, rdate::RDate) = apply(negate(rdate), date)
 Base.:*(count::Number, rdate::RDate) = RDateRepeat(count, rdate)
 Base.:*(rdate::RDate, count::Number) = RDateRepeat(count, rdate)
 
 struct RDateRange
-    from::Date
-    to::Union{Date, Nothing}
+    from::Dates.Date
+    to::Union{Dates.Date, Nothing}
     period::RDate
     inc_from::Bool
     inc_to::Bool
@@ -166,11 +182,11 @@ function Base.iterate(iter::RDateRange, state=nothing)
 end
 
 Base.IteratorSize(::Type{RDateRange}) = Base.SizeUnknown()
-Base.eltype(::Type{RDateRange}) = Date
-function Base.range(from::Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true)
+Base.eltype(::Type{RDateRange}) = Dates.Date
+function Base.range(from::Dates.Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true)
     return RDateRange(from, nothing, period, inc_from, inc_to)
 end
 
-function Base.range(from::Date, to::Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true)
+function Base.range(from::Dates.Date, to::Dates.Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true)
     return RDateRange(from, to, period, inc_from, inc_to)
 end
