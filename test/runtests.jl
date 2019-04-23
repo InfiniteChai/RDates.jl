@@ -10,6 +10,16 @@ using ParserCombinator
     @test rd"3*1d" == 3 * rd"1d"
 end
 
+@testset "codified rdate generation" begin
+    @test RDates.Day(1) == rd"1d"
+    @test RDates.Day(2) + RDates.Week(3) == rd"2d + 3w"
+    @test 2 * (RDates.Year(3) + RDates.Month(1)) == rd"2*(3y + 1m)"
+    @test RDates.Weekdays(:MON, 3) == rd"3MON"
+    @test RDates.DayMonth(23, :FEB) == rd"23FEB"
+    @test RDates.NthWeekdays(:FRI, 1) == rd"1st FRI"
+    @test RDates.NthLastWeekdays(:SUN, 2) == rd"2nd Last SUN"
+end
+
 @testset "rdate whitespace" begin
     @test rd"  1d" == rd"1d"
     @test rd"1d  + 3d" == rd"1d+3d"
