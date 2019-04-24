@@ -5,29 +5,32 @@ const WEEKDAYS = Dict(zip(map(Symbol ∘ uppercase, Dates.ENGLISH.days_of_week_a
 const MONTHS = Dict(zip(map(Symbol ∘ uppercase, Dates.ENGLISH.months_abbr),range(1,stop=12)))
 
 @compat abstract type RDate end
-apply(rdate::RDate, date::Dates.Date) = error("$(typeof(rdate)) does not support 'apply'")
-apply(date::Dates.Date, rdate::RDate) = apply(rdate, date)
-negate(rdate::RDate) = error("$(typeof(rdate)) does not support 'negate'")
+
+Base.:+(x::RDate, y::Dates.Date) = error("$(typeof(x)) does not support date addition")
+Base.:+(x::Dates.Date, y::RDate) = y + x
+Base.:-(x::RDate) = error("$(typeof(x)) does not support negation")
 
 struct Day <: RDate
     days::Int64
 end
 
-apply(rdate::Day, date::Dates.Date) = date + Dates.Day(rdate.days)
-negate(rdate::Day) = Day(-rdate.days)
+Base.:+(x::Day, y::Dates.Date) = y + Dates.Day(x.days)
+Base.:-(x::Day) = Day(-x.days)
+Base.:+(x::Day, y::Day) = Day(x.days + y.days)
 
 struct Week <: RDate
     weeks::Int64
 end
 
-apply(rdate::Week, date::Dates.Date) = date + Dates.Week(rdate.weeks)
-negate(rdate::Week) = Week(-rdate.weeks)
+Base.:+(x::Week, y::Dates.Date) = y + Dates.Week(x.weeks)
+Base.:-(x::Week) = Week(-x.weeks)
+Base.:+(x::Week, y::Week) = Week(x.weeks + y.weeks)
 
 struct FDOM <: RDate end
-apply(rdate::FDOM, date::Dates.Date) = Dates.firstdayofmonth(date)
+Base.:+(x::FDOM, y::Dates.Date) = Dates.firstdayofmonth(y)
 
 struct LDOM <: RDate end
-apply(rdate::LDOM, date::Dates.Date) = Dates.lastdayofmonth(date)
+Base.:+(x::LDOM, y::Dates.Date) = Dates.lastdayofmonth(y)
 
 struct Month <: RDate
     months::Int64
@@ -38,7 +41,7 @@ struct Month <: RDate
     Month(months::Int64, idc::InvalidDay.InvalidDayConvention, mic::MonthIncrement.MonthIncrementConvention) = new(months, idc, mic)
 end
 
-function apply(rdate::Month, date::Dates.Date)
+function Base.:+(rdate::Month, date::Dates.Date)
     y,m,d = Dates.yearmonthday(date)
     ny = Dates.yearwrap(y, m, rdate.months)
     nm = Dates.monthwrap(m, rdate.months)
@@ -47,7 +50,7 @@ function apply(rdate::Month, date::Dates.Date)
     return ad <= ld ? Dates.Date(ay, am, ad) : InvalidDay.adjust(rdate.idc, ad, am, ay)
 end
 
-negate(rdate::Month) = Month(-rdate.months)
+Base.:-(x::Month) = Month(-x.months)
 
 struct Year <: RDate
     years::Int64
@@ -57,14 +60,14 @@ struct Year <: RDate
     Year(years::Int64, idm::InvalidDay.InvalidDayConvention) = new(years, idm)
 end
 
-function apply(rdate::Year, date::Dates.Date)
+function Base.:+(rdate::Year, date::Dates.Date)
     oy, m, d = Dates.yearmonthday(date)
     ny = oy + rdate.years
     ld = Dates.daysinmonth(ny, m)
     return d <= ld ? Dates.Date(ny, m, d) : InvalidDay.adjust(rdate.idm, d, m, ny)
 end
 
-negate(rdate::Year) = Year(-rdate.years)
+Base.:-(x::Year) = Year(-x.years)
 
 struct DayMonth <: RDate
     day::Int64
@@ -73,12 +76,12 @@ struct DayMonth <: RDate
     DayMonth(day::Int64, month::Int64) = new(day, month)
 end
 
-apply(rdate::DayMonth, date::Dates.Date) = Dates.Date(Dates.year(date), rdate.month, rdate.day)
+Base.:+(rdate::DayMonth, date::Dates.Date) = Dates.Date(Dates.year(date), rdate.month, rdate.day)
 
 struct Easter <: RDate
     yearδ::Int64
 end
-function apply(rdate::Easter, date::Dates.Date)
+function Base.:+(rdate::Easter, date::Dates.Date)
     y = Dates.year(date) + rdate.yearδ
     a = rem(y, 19)
     b = div(y, 100)
@@ -97,7 +100,7 @@ function apply(rdate::Easter, date::Dates.Date)
     return Dates.Date(y, n, p + 1)
 end
 
-negate(rdate::Easter) = Easter(-rdate.yearδ)
+Base.:-(rdate::Easter) = Easter(-rdate.yearδ)
 
 struct NthWeekdays <: RDate
     dayofweek::Int64
@@ -106,7 +109,7 @@ struct NthWeekdays <: RDate
     NthWeekdays(dayofweek::Int64, period::Int64) = new(dayofweek, period)
 end
 
-function apply(rdate::NthWeekdays, date::Dates.Date)
+function Base.:+(rdate::NthWeekdays, date::Dates.Date)
     wd = Dates.dayofweek(date)
     wd1st = mod(wd - mod(Dates.day(date), 7), 7) + 1
     wd1stdiff = wd1st - rdate.dayofweek
@@ -122,7 +125,7 @@ struct NthLastWeekdays <: RDate
     NthLastWeekdays(dayofweek::Int64, period::Int64) = new(dayofweek, period)
 end
 
-function apply(rdate::NthLastWeekdays, date::Dates.Date)
+function Base.:+(rdate::NthLastWeekdays, date::Dates.Date)
     ldom = LDOM() + date
     ldom_dow = Dates.dayofweek(ldom)
     ldom_dow_diff = ldom_dow - rdate.dayofweek
@@ -139,7 +142,7 @@ struct Weekdays <: RDate
     Weekdays(dayofweek::Int64, count::Int64) = new(dayofweek, count)
 end
 
-function apply(rdate::Weekdays, date::Dates.Date)
+function Base.:+(rdate::Weekdays, date::Dates.Date)
     dayδ = Dates.dayofweek(date) - rdate.dayofweek
     weekδ = rdate.count
 
@@ -152,14 +155,17 @@ function apply(rdate::Weekdays, date::Dates.Date)
     return date + Dates.Day(weekδ*7 - dayδ)
 end
 
-negate(rdate::Weekdays) = Weekdays(rdate.dayofweek, -rdate.count)
+Base.:-(rdate::Weekdays) = Weekdays(rdate.dayofweek, -rdate.count)
 
 struct RDateCompound <: RDate
     parts::Vector{RDate}
 end
 Base.:(==)(x::RDateCompound, y::RDateCompound) = x.parts == y.parts
 
-apply(rdate::RDateCompound, date::Dates.Date) = Base.foldl(apply, rdate.parts, init=date)
+Base.:+(rdate::RDateCompound, date::Dates.Date) = Base.foldl(+, rdate.parts, init=date)
+Base.:-(rdate::RDateCompound) = RDateCompound(map(-, rdate.parts))
+Base.:+(x::RDateCompound, y::RDate) = RDateCompound(vcat(x.parts, y))
+Base.:+(x::RDate, y::RDateCompound) = RDateCompound(vcat(x, y.parts))
 combine(left::RDate, right::RDate) = RDateCompound([left,right])
 
 struct RDateRepeat <: RDate
@@ -168,13 +174,10 @@ struct RDateRepeat <: RDate
 end
 Base.:(==)(x::RDateRepeat, y::RDateRepeat) = x.count == y.count && x.part == y.part
 
-apply(rdate::RDateRepeat, date::Dates.Date) = Base.foldl(apply, fill(rdate.part, rdate.count), init=date)
-negate(rdate::RDateRepeat) = RDateRepeat(rdate.count, negate(rdate.part))
+Base.:+(rdate::RDateRepeat, date::Dates.Date) = Base.foldl(+, fill(rdate.part, rdate.count), init=date)
+Base.:-(rdate::RDateRepeat) = RDateRepeat(rdate.count, -rdate.part)
 
-Base.:+(rdate::RDate, date::Dates.Date) = apply(rdate, date)
 Base.:+(left::RDate, right::RDate) = combine(left, right)
-Base.:-(left::RDate, right::RDate) = combine(left, negate(right))
-Base.:+(date::Dates.Date, rdate::RDate) = apply(rdate, date)
-Base.:-(date::Dates.Date, rdate::RDate) = apply(negate(rdate), date)
+Base.:-(left::RDate, right::RDate) = combine(left, -right)
 Base.:*(count::Number, rdate::RDate) = RDateRepeat(count, rdate)
 Base.:*(rdate::RDate, count::Number) = RDateRepeat(count, rdate)

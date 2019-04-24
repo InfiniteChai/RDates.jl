@@ -33,13 +33,13 @@ PPosInt64() = Parse(p"[1-9][0-9]*", Int64)
 
     # Add support for multiple negatives --2d for example...
     neg = Delayed()
-    neg.matcher = rdate_expr | (E"-" + neg > negate)
+    neg.matcher = rdate_expr | (E"-" + neg > -)
 
     mul = E"*" + (neg | PPosInt64())
     prod = (neg | ((PPosInt64() | neg) + mul[0:end])) |> Base.prod
     add = E"+" + prod
-    sub = E"-" + prod > negate
-    sum.matcher = prod + (add | sub)[0:end] |> x -> length(x) == 1 ? x[1] : RDateCompound(x)
+    sub = E"-" + prod > -
+    sum.matcher = prod + (add | sub)[0:end] |> Base.sum
 
     entry = sum + Eos()
 end
