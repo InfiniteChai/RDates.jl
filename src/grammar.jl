@@ -1,6 +1,9 @@
 using ParserCombinator
 import Dates
 
+const NTH_PERIODS = ["1st", "2nd", "3rd", "4th", "5th"]
+const NTH_LAST_PERIODS = ["Last", "2nd Last", "3rd Last", "4th Last", "5th Last"]
+
 const PERIODS = Dict(
     "1st" => 1, "2nd" => 2, "3rd" => 3, "4th" => 4, "5th" => 5,
     "Last" => 1, "2nd Last" => 2, "3rd Last" => 3, "4th Last" => 4, "5th Last" => 5)
