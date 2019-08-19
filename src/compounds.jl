@@ -29,5 +29,5 @@ Base.show(io::IO, rdate::RDateRepeat) = (print(io, "$(rdate.count)*("), show(io,
 
 Base.:+(left::RDate, right::RDate) = combine(left, right)
 Base.:-(left::RDate, right::RDate) = combine(left, -right)
-Base.:*(count::Number, rdate::RDate) = RDateRepeat(count, rdate)
+Base.:*(count::Number, rdate::RDate) = rdate*count
 Base.:*(rdate::RDate, count::Number) = RDateRepeat(count, rdate)

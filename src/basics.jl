@@ -7,12 +7,14 @@ const PERIODS = merge(Dict(map(reverse,enumerate(NTH_PERIODS))), Dict(map(revers
 const MONTHS = Dict(zip(map(Symbol ∘ uppercase, Dates.ENGLISH.months_abbr),range(1,stop=12)))
 
 struct FDOM <: RDate end
-Base.:+(x::FDOM, y::Dates.Date) = Dates.firstdayofmonth(y)
+Base.:+(::FDOM, y::Dates.Date) = Dates.firstdayofmonth(y)
+Base.:*(x::FDOM, count::Number) = x
 Base.show(io::IO, ::FDOM) = print(io, "FDOM")
 register_grammar!(E"FDOM" > FDOM)
 
 struct LDOM <: RDate end
-Base.:+(x::LDOM, y::Dates.Date) = Dates.lastdayofmonth(y)
+Base.:+(::LDOM, y::Dates.Date) = Dates.lastdayofmonth(y)
+Base.:*(x::LDOM, count::Number) = x
 Base.show(io::IO, ::LDOM) = print(io, "LDOM")
 register_grammar!(E"LDOM" > LDOM)
 
@@ -40,6 +42,7 @@ function Base.:+(rdate::Easter, date::Dates.Date)
 end
 
 Base.:-(rdate::Easter) = Easter(-rdate.yearδ)
+Base.:*(x::Easter, count::Number) = Easter(x.yearδ*count)
 Base.show(io::IO, rdate::Easter) = print(io, "$(rdate.yearδ)E")
 register_grammar!(PInt64() + E"E" > Easter)
 
@@ -50,6 +53,7 @@ end
 Base.:+(x::Day, y::Dates.Date) = y + Dates.Day(x.days)
 Base.:-(x::Day) = Day(-x.days)
 Base.:+(x::Day, y::Day) = Day(x.days + y.days)
+Base.:*(x::Day, count::Number) = Day(x.days*count)
 
 Base.show(io::IO, rdate::Day) = print(io, "$(rdate.days)d")
 register_grammar!(PInt64() + E"d" > Day)
@@ -62,6 +66,9 @@ end
 Base.:+(x::Week, y::Dates.Date) = y + Dates.Week(x.weeks)
 Base.:-(x::Week) = Week(-x.weeks)
 Base.:+(x::Week, y::Week) = Week(x.weeks + y.weeks)
+Base.:+(x::Day, y::Week) = Day(x.days + 7*y.weeks)
+Base.:+(x::Week, y::Day) = Day(7*x.weeks + y.days)
+Base.:*(x::Week, count::Number) = Week(x.weeks*count)
 Base.show(io::IO, rdate::Week) = print(io, "$(rdate.weeks)w")
 register_grammar!(PInt64() + E"w" > Week)
 
@@ -130,6 +137,7 @@ struct DayMonthYear <: RDate
 end
 
 Base.:+(rdate::DayMonthYear, date::Dates.Date) = Dates.Date(rdate.year, rdate.month, rdate.day)
+Base.:*(x::DayMonthYear, count::Number) = x
 Base.show(io::IO, rdate::DayMonthYear) = print(io, "$(rdate.day)$(uppercase(Dates.ENGLISH.months_abbr[rdate.month]))$(rdate.year)")
 register_grammar!(PPosInt64() + month_short + PPosInt64() > (d,m,y) -> DayMonth(d,MONTHS[Symbol(m)],y))
 
@@ -150,6 +158,7 @@ function Base.:+(rdate::NthWeekdays, date::Dates.Date)
 end
 
 Base.show(io::IO, rdate::NthWeekdays) = print(io, "$(NTH_PERIODS[rdate.period]) $(uppercase(Dates.ENGLISH.days_of_week_abbr[rdate.dayofweek]))")
+Base.:*(x::NthWeekdays, count::Number) = x
 register_grammar!(Alt(map(Pattern, NTH_PERIODS)...) + space + weekday_short > (p,wd) -> NthWeekdays(WEEKDAYS[Symbol(wd)], PERIODS[p]))
 
 struct NthLastWeekdays <: RDate
@@ -170,6 +179,7 @@ function Base.:+(rdate::NthLastWeekdays, date::Dates.Date)
 end
 
 Base.show(io::IO, rdate::NthLastWeekdays) = print(io, "$(NTH_LAST_PERIODS[rdate.period]) $(uppercase(Dates.ENGLISH.days_of_week_abbr[rdate.dayofweek]))")
+Base.:*(x::NthLastWeekdays, count::Number) = x
 register_grammar!(Alt(map(Pattern, NTH_LAST_PERIODS)...) + space + weekday_short > (p,wd) -> NthLastWeekdays(WEEKDAYS[Symbol(wd)], PERIODS[p]))
 
 struct Weekdays <: RDate
