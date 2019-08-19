@@ -28,7 +28,7 @@ PPosInt64() = Parse(p"[1-9][0-9]*", Int64)
     entry = sum + Eos()
 end
 
-function register_grammar(term)
+function register_grammar!(term)
     # Handle the spacing correctly
     push!(rdate_term.matchers[2].matchers, term)
 end

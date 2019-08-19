@@ -1,12 +1,13 @@
 module RDates
 
+include("abstracts.jl")
+
 include("grammar.jl")
 
 include("monthinc.jl")
 include("invalidday.jl")
 
 # The various basic implementations (along with shows and grammar registrations)
-include("abstracts.jl")
 include("basics.jl")
 include("compounds.jl")
 
