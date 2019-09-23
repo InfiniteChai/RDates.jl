@@ -7,13 +7,13 @@ const PERIODS = merge(Dict(map(reverse,enumerate(NTH_PERIODS))), Dict(map(revers
 const MONTHS = Dict(zip(map(Symbol ∘ uppercase, Dates.ENGLISH.months_abbr),range(1,stop=12)))
 
 struct FDOM <: RDate end
-Base.:+(::FDOM, y::Dates.Date) = Dates.firstdayofmonth(y)
+apply(::FDOM, d::Dates.Date, cal_mgr::CalendarManager) = Dates.firstdayofmonth(d)
 Base.:*(x::FDOM, count::Number) = x
 Base.show(io::IO, ::FDOM) = print(io, "FDOM")
 register_grammar!(E"FDOM" > FDOM)
 
 struct LDOM <: RDate end
-Base.:+(::LDOM, y::Dates.Date) = Dates.lastdayofmonth(y)
+apply(::LDOM, d::Dates.Date, cal_mgr::CalendarManager) = Dates.lastdayofmonth(d)
 Base.:*(x::LDOM, count::Number) = x
 Base.show(io::IO, ::LDOM) = print(io, "LDOM")
 register_grammar!(E"LDOM" > LDOM)
@@ -22,7 +22,7 @@ struct Easter <: RDate
     yearδ::Int64
 end
 
-function Base.:+(rdate::Easter, date::Dates.Date)
+function apply(rdate::Easter, date::Dates.Date, cal_mgr::CalendarManager)
     y = Dates.year(date) + rdate.yearδ
     a = rem(y, 19)
     b = div(y, 100)
@@ -50,7 +50,7 @@ struct Day <: RDate
     days::Int64
 end
 
-Base.:+(x::Day, y::Dates.Date) = y + Dates.Day(x.days)
+apply(x::Day, y::Dates.Date, cal_mgr::CalendarManager) = y + Dates.Day(x.days)
 Base.:-(x::Day) = Day(-x.days)
 Base.:+(x::Day, y::Day) = Day(x.days + y.days)
 Base.:*(x::Day, count::Number) = Day(x.days*count)
@@ -63,7 +63,7 @@ struct Week <: RDate
     weeks::Int64
 end
 
-Base.:+(x::Week, y::Dates.Date) = y + Dates.Week(x.weeks)
+apply(x::Week, y::Dates.Date, cal_mgr::CalendarManager) = y + Dates.Week(x.weeks)
 Base.:-(x::Week) = Week(-x.weeks)
 Base.:+(x::Week, y::Week) = Week(x.weeks + y.weeks)
 Base.:+(x::Day, y::Week) = Day(x.days + 7*y.weeks)
@@ -81,7 +81,7 @@ struct Month <: RDate
     Month(months::Int64, idc::InvalidDay.InvalidDayConvention, mic::MonthIncrement.MonthIncrementConvention) = new(months, idc, mic)
 end
 
-function Base.:+(rdate::Month, date::Dates.Date)
+function apply(rdate::Month, date::Dates.Date, cal_mgr::CalendarManager)
     y,m,d = Dates.yearmonthday(date)
     ny = Dates.yearwrap(y, m, rdate.months)
     nm = Dates.monthwrap(m, rdate.months)
@@ -104,7 +104,7 @@ struct Year <: RDate
     Year(years::Int64, idc::InvalidDay.InvalidDayConvention) = new(years, idc)
 end
 
-function Base.:+(rdate::Year, date::Dates.Date)
+function apply(rdate::Year, date::Dates.Date, cal_mgr::CalendarManager)
     oy, m, d = Dates.yearmonthday(date)
     ny = oy + rdate.years
     ld = Dates.daysinmonth(ny, m)
@@ -124,7 +124,7 @@ struct DayMonth <: RDate
     DayMonth(day::Int64, month::Int64) = new(day, month)
 end
 
-Base.:+(rdate::DayMonth, date::Dates.Date) = Dates.Date(Dates.year(date), rdate.month, rdate.day)
+apply(rdate::DayMonth, date::Dates.Date, cal_mgr::CalendarManager) = Dates.Date(Dates.year(date), rdate.month, rdate.day)
 Base.show(io::IO, rdate::DayMonth) = print(io, "$(rdate.day)$(uppercase(Dates.ENGLISH.months_abbr[rdate.month]))")
 register_grammar!(PPosInt64() + month_short > (d,m) -> DayMonth(d,MONTHS[Symbol(m)]))
 
@@ -136,7 +136,7 @@ struct DayMonthYear <: RDate
     DayMonthYear(day::Int64, month::Int64, year::Int64) = new(day, month, year)
 end
 
-Base.:+(rdate::DayMonthYear, date::Dates.Date) = Dates.Date(rdate.year, rdate.month, rdate.day)
+apply(rdate::DayMonthYear, date::Dates.Date, cal_mgr::CalendarManager) = Dates.Date(rdate.year, rdate.month, rdate.day)
 Base.:*(x::DayMonthYear, count::Number) = x
 Base.show(io::IO, rdate::DayMonthYear) = print(io, "$(rdate.day)$(uppercase(Dates.ENGLISH.months_abbr[rdate.month]))$(rdate.year)")
 register_grammar!(PPosInt64() + month_short + PPosInt64() > (d,m,y) -> DayMonth(d,MONTHS[Symbol(m)],y))
@@ -148,7 +148,7 @@ struct NthWeekdays <: RDate
     NthWeekdays(dayofweek::Int64, period::Int64) = new(dayofweek, period)
 end
 
-function Base.:+(rdate::NthWeekdays, date::Dates.Date)
+function apply(rdate::NthWeekdays, date::Dates.Date, cal_mgr::CalendarManager)
     wd = Dates.dayofweek(date)
     wd1st = mod(wd - mod(Dates.day(date), 7), 7) + 1
     wd1stdiff = wd1st - rdate.dayofweek
@@ -168,7 +168,7 @@ struct NthLastWeekdays <: RDate
     NthLastWeekdays(dayofweek::Int64, period::Int64) = new(dayofweek, period)
 end
 
-function Base.:+(rdate::NthLastWeekdays, date::Dates.Date)
+function apply(rdate::NthLastWeekdays, date::Dates.Date, cal_mgr::CalendarManager)
     ldom = LDOM() + date
     ldom_dow = Dates.dayofweek(ldom)
     ldom_dow_diff = ldom_dow - rdate.dayofweek
@@ -189,7 +189,7 @@ struct Weekdays <: RDate
     Weekdays(dayofweek::Int64, count::Int64) = new(dayofweek, count)
 end
 
-function Base.:+(rdate::Weekdays, date::Dates.Date)
+function apply(rdate::Weekdays, date::Dates.Date, cal_mgr::CalendarManager)
     dayδ = Dates.dayofweek(date) - rdate.dayofweek
     weekδ = rdate.count
 
