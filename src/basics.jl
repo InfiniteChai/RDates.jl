@@ -74,48 +74,50 @@ register_grammar!(PInt64() + E"w" > Week)
 
 struct Month <: RDate
     months::Int64
-    idc::InvalidDay.InvalidDayConvention
-    mic::MonthIncrement.MonthIncrementConvention
+    idc::InvalidDayConvention
+    mic::MonthIncrementConvention
 
-    Month(months::Int64) = new(months, InvalidDay.LDOM, MonthIncrement.PDOM)
-    Month(months::Int64, idc::InvalidDay.InvalidDayConvention, mic::MonthIncrement.MonthIncrementConvention) = new(months, idc, mic)
+    Month(months::Int64) = new(months, InvalidDayLDOM(), MonthIncrementPDOM())
+    Month(months::Int64, idc::InvalidDayConvention, mic::MonthIncrementConvention) = new(months, idc, mic)
 end
 
 function apply(rdate::Month, date::Dates.Date, cal_mgr::CalendarManager)
     y,m,d = Dates.yearmonthday(date)
     ny = Dates.yearwrap(y, m, rdate.months)
     nm = Dates.monthwrap(m, rdate.months)
-    (ay, am, ad) = MonthIncrement.adjust(rdate.mic, d, m, y, nm, ny)
+    (ay, am, ad) = adjust(rdate.mic, d, m, y, nm, ny)
     ld = Dates.daysinmonth(ay, am)
-    return ad <= ld ? Dates.Date(ay, am, ad) : InvalidDay.adjust(rdate.idc, ad, am, ay)
+    return ad <= ld ? Dates.Date(ay, am, ad) : adjust(rdate.idc, ad, am, ay)
 end
 
 Base.:-(x::Month) = Month(-x.months)
 
 Base.show(io::IO, rdate::Month) = (print(io, "$(rdate.months)m["), show(io, rdate.idc), print(io, ";"), show(io, rdate.mic), print(io,"]"))
 register_grammar!(PInt64() + E"m" > Month)
-register_grammar!(PInt64() + E"m[" + Alt(map(Pattern, collect(keys(InvalidDay.MAPPINGS)))...) + E";" + Alt(map(Pattern, collect(keys(MonthIncrement.MAPPINGS)))...) + E"]" > (d,idc,mic) -> Month(d, InvalidDay.MAPPINGS[idc], MonthIncrement.MAPPINGS[mic]))
+register_grammar!(PInt64() + E"m[" + Alt(map(Pattern, collect(keys(INVALID_DAY_MAPPINGS)))...) + E";" + Alt(map(Pattern, collect(keys(MONTH_INCREMENT_MAPPINGS)))...) + E"]" > (d,idc,mic) -> Month(d, INVALID_DAY_MAPPINGS[idc], MONTH_INCREMENT_MAPPINGS[mic]))
 
 struct Year <: RDate
     years::Int64
-    idc::InvalidDay.InvalidDayConvention
+    idc::InvalidDayConvention
+    mic::MonthIncrementConvention
 
-    Year(years::Int64) = new(years, InvalidDay.LDOM)
-    Year(years::Int64, idc::InvalidDay.InvalidDayConvention) = new(years, idc)
+    Year(years::Int64) = new(years, InvalidDayLDOM(), MonthIncrementPDOM())
+    Year(years::Int64, idc::InvalidDayConvention, mic::MonthIncrementConvention) = new(years, idc, mic)
 end
 
 function apply(rdate::Year, date::Dates.Date, cal_mgr::CalendarManager)
     oy, m, d = Dates.yearmonthday(date)
     ny = oy + rdate.years
-    ld = Dates.daysinmonth(ny, m)
-    return d <= ld ? Dates.Date(ny, m, d) : InvalidDay.adjust(rdate.idc, d, m, ny)
+    (ay, am, ad) = adjust(rdate.mic, d, m, oy, m, ny)
+    ld = Dates.daysinmonth(ay, am)
+    return ad <= ld ? Dates.Date(ay, am, ad) : adjust(rdate.idc, ad, am, ay)
 end
 
 Base.:-(x::Year) = Year(-x.years)
 
-Base.show(io::IO, rdate::Year) = (print(io, "$(rdate.years)y["), show(io, rdate.idc), print(io, "]"))
+Base.show(io::IO, rdate::Year) = (print(io, "$(rdate.years)y["), show(io, rdate.idc), print(io, ";"), show(io, rdate.mic), print(io,"]"))
 register_grammar!(PInt64() + E"y" > Year)
-register_grammar!(PInt64() + E"y[" + Alt(map(Pattern, collect(keys(InvalidDay.MAPPINGS)))...)+ E"]" > (d,idc) -> Year(d, InvalidDay.MAPPINGS[idc]))
+register_grammar!(PInt64() + E"y[" + Alt(map(Pattern, collect(keys(INVALID_DAY_MAPPINGS)))...) + E";" + Alt(map(Pattern, collect(keys(MONTH_INCREMENT_MAPPINGS)))...) + E"]" > (d,idc,mic) -> Year(d, INVALID_DAY_MAPPINGS[idc], MONTH_INCREMENT_MAPPINGS[mic]))
 
 struct DayMonth <: RDate
     day::Int64

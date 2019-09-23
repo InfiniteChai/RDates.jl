@@ -1,6 +1,5 @@
 using Test
 using RDates
-using RDates: MonthIncrement, InvalidDay
 using Dates
 using ParserCombinator
 
@@ -57,21 +56,21 @@ end
         @test RDates.Year(1) + Date(2016,2,29) == Date(2017,2,28)
         @test Dates.Year(1) + Date(2016,2,29) == Date(2017,2,28)
         @test rd"1y" + Date(2016,2,29) == Date(2017,2,28)
-        @test RDates.Year(1, InvalidDay.LDOM) + Date(2016,2,29) == Date(2017,2,28)
-        @test rd"1y[LDOM]" + Date(2016,2,29) == Date(2017,2,28)
-        @test RDates.Year(1, InvalidDay.FDONM) + Date(2016,2,29) == Date(2017,3,1)
-        @test rd"1y[FDONM]" + Date(2016,2,29) == Date(2017,3,1)
+        @test RDates.Year(1, RDates.InvalidDayLDOM(), RDates.MonthIncrementPDOM()) + Date(2016,2,29) == Date(2017,2,28)
+        @test rd"1y[LDOM;PDOM]" + Date(2016,2,29) == Date(2017,2,28)
+        @test RDates.Year(1, RDates.InvalidDayFDONM(), RDates.MonthIncrementPDOM()) + Date(2016,2,29) == Date(2017,3,1)
+        @test rd"1y[FDONM;PDOM]" + Date(2016,2,29) == Date(2017,3,1)
 
         @test RDates.Month(1) + Date(2019,1,31) == Date(2019,2,28)
         @test Dates.Month(1) + Date(2019,1,31) == Date(2019,2,28)
         @test rd"1m" + Date(2019,1,31) == Date(2019,2,28)
-        @test RDates.Month(1, InvalidDay.NDONM, MonthIncrement.PDOM) + Date(2019,1,31) == Date(2019,3,3)
+        @test RDates.Month(1, RDates.InvalidDayNDONM(), RDates.MonthIncrementPDOM()) + Date(2019,1,31) == Date(2019,3,3)
         @test rd"1m[NDONM;PDOM]" + Date(2019,1,31) == Date(2019,3,3)
-        @test RDates.Month(1, InvalidDay.FDONM, MonthIncrement.PDOM) + Date(2019,1,31) == Date(2019,3,1)
+        @test RDates.Month(1, RDates.InvalidDayFDONM(), RDates.MonthIncrementPDOM()) + Date(2019,1,31) == Date(2019,3,1)
         @test rd"1m[FDONM;PDOM]" + Date(2019,1,31) == Date(2019,3,1)
-        @test RDates.Month(1, InvalidDay.NDONM, MonthIncrement.PDOMEOM) + Date(2019,1,31) == Date(2019,2,28)
+        @test RDates.Month(1, RDates.InvalidDayNDONM(), RDates.MonthIncrementPDOMEOM()) + Date(2019,1,31) == Date(2019,2,28)
         @test rd"1m[NDONM;PDOMEOM]" + Date(2019,1,31) == Date(2019,2,28)
-        @test RDates.Month(1, InvalidDay.NDONM, MonthIncrement.PDOMEOM) + Date(2019,1,30) == Date(2019,3,2)
+        @test RDates.Month(1, RDates.InvalidDayNDONM(), RDates.MonthIncrementPDOMEOM()) + Date(2019,1,30) == Date(2019,3,2)
         @test rd"1m[NDONM;PDOMEOM]" + Date(2019,1,30) == Date(2019,3,2)
     end
 end
