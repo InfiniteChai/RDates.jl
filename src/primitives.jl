@@ -208,3 +208,37 @@ Base.:-(rdate::Weekdays) = Weekdays(rdate.dayofweek, -rdate.count)
 
 Base.show(io::IO, rdate::Weekdays) = print(io, "$(rdate.count)$(uppercase(Dates.ENGLISH.days_of_week_abbr[rdate.dayofweek]))")
 register_grammar!(PNonZeroInt64() + weekday_short > (i,wd) -> Weekdays(WEEKDAYS[Symbol(wd)], i))
+
+struct BizDays{S <: HolidayRoundingConvention} <: RDate
+    days::Int64
+    calendar_name::String
+    rounding::S
+
+    BizDays(days::Int64, calendar_name::String) = BizDays(days, calendar_name, days >= 0 ? HolidayRoundingNBD() : HolidayRoundingPBD())
+    BizDays(days::Int64, calendar_name::String, rounding::S) where {S <: HolidayRoundingConvention} = new{S}(days, calendar_name, rounding)
+end
+
+function apply(rdate::BizDays, date::Dates.Date, cal_mgr::CalendarManager)
+    cal = calendar(cal_mgr, rdate.calendar_name)
+    count = rdate.days
+    if rdate.days > 0
+        while count > 0
+            date = apply(rdate.rounding, date + Dates.Day(1), cal)
+            count -= 1
+        end
+    elseif rdate.days < 0
+        while count < 0
+            date = apply(rdate.rounding, date - Dates.Day(1), cal)
+            count += 1
+        end
+    else
+        date = apply(rdate.rounding, date, cal)
+    end
+
+    return date
+end
+
+Base.:-(x::BizDays{HolidayRoundingNBD}) = BizDays(-x.days, x.calendar_name, HolidayRoundingPBD())
+Base.:-(x::BizDays{HolidayRoundingPBD}) = BizDays(-x.days, x.calendar_name, HolidayRoundingNBD())
+
+register_grammar!(PPosZeroInt64() + E"b@" + p"[a-zA-Z\\\\\\s\\|]+" > (days,calendar_name) -> BizDays(days, String(calendar_name)))

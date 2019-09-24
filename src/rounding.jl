@@ -49,3 +49,5 @@ function apply(::HolidayRoundingPBDSM, date::Dates.Date, calendar::Calendar)::Da
 
     new_date
 end
+
+const HOLIDAY_ROUNDING_MAPPINGS = Dict("NBD" => HolidayRoundingNBD(), "PBD" => HolidayRoundingPBD(), "NBDSM" => HolidayRoundingNBDSM(), "PBDSM" => HolidayRoundingPBDSM())

@@ -45,3 +45,5 @@ function apply(rdate::CalendarAdj, date::Dates.Date, cal_mgr::CalendarManager)
     cal = calendar(cal_mgr, rdate.calendar_name)
     apply(rdate.rounding, base_date, cal)
 end
+
+Base.:-(x::CalendarAdj) = CalendarAdj(x.calendar_name, -x.part, x.rounding)
