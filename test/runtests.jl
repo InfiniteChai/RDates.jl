@@ -54,6 +54,11 @@ end
         @test rd"Next!(0E,1E)" + Date(2019,1,1) == Date(2019,4,21)
         @test rd"Next!(0E,1E)" + Date(2019,4,21) == Date(2019,4,21)
         @test rd"Next!(0E,1E)" + Date(2019,5,1) == Date(2020,4,12)
+
+        # Demonstration of how to get the next IMM date
+        @test rd"Next(1MAR+3rd WED,1JUN+3rd WED,1SEP+3rd WED,1DEC+3rd WED,1y+1MAR+3rd WED)" + Date(2019,9,25) == Date(2019,12,18)
+        @test rd"Next(1MAR+3rd WED,1JUN+3rd WED,1SEP+3rd WED,1DEC+3rd WED,1y+1MAR+3rd WED)" + Date(2019,9,1) == Date(2019,9,18)
+        @test rd"Next(1MAR+3rd WED,1JUN+3rd WED,1SEP+3rd WED,1DEC+3rd WED,1y+1MAR+3rd WED)" + Date(2019,12,31) == Date(2020,3,18)
     end
 end
 
