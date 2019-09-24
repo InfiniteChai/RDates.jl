@@ -13,10 +13,14 @@ PPosZeroInt64() = Parse(p"[0-9][0-9]*", Int64)
     weekday_short = Alt(map(x -> Pattern(uppercase(x)), Dates.ENGLISH.days_of_week_abbr)...)
     month_short = Alt(map(x -> Pattern(uppercase(x)), Dates.ENGLISH.months_abbr)...)
 
-    rdate_term = Alt()
-    rdate_expr = rdate_term | (E"(" + space + sum + space + E")")
+    brackets = E"(" + space + sum + space + E")"
+    next = (E"Next(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Next(xs, false))
+    next_inclusive = (E"Next!(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Next(xs, true))
+    prev = (E"Prev(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Prev(xs, false))
+    prev_inclusive = (E"Prev!(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Prev(xs, true))
 
-    # Add support for multiple negatives --2d for example...
+    rdate_term = Alt()
+    rdate_expr = rdate_term | brackets | next | next_inclusive | prev | prev_inclusive
 
     neg = Delayed()
     neg.matcher = rdate_expr | (E"-" + neg > -)

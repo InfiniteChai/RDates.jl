@@ -47,3 +47,39 @@ function apply(rdate::CalendarAdj, date::Dates.Date, cal_mgr::CalendarManager)
 end
 
 Base.:-(x::CalendarAdj) = CalendarAdj(x.calendar_name, -x.part, x.rounding)
+
+struct Next{T} <: RDate
+    parts::StaticArrays.SVector{T,RDate}
+    inclusive::Bool
+
+    Next(parts, inclusive::Bool) = new{length(parts)}(parts, inclusive)
+end
+
+function apply(rdate::Next, date::Dates.Date, cal_mgr::CalendarManager)
+    for part in rdate.parts
+        new_date = apply(part, date, cal_mgr)
+        if new_date > date || (rdate.inclusive && new_date == date)
+            return new_date
+        end
+    end
+
+    error("$(rdate) does not evaluate to a future date for $(date)")
+end
+
+struct Prev{T} <: RDate
+    parts::StaticArrays.SVector{T,RDate}
+    inclusive::Bool
+
+    Prev(parts, inclusive::Bool) = new{length(parts)}(parts, inclusive)
+end
+
+function apply(rdate::Prev, date::Dates.Date, cal_mgr::CalendarManager)
+    for part in rdate.parts
+        new_date = apply(part, date, cal_mgr)
+        if new_date < date || (rdate.inclusive && new_date == date)
+            return new_date
+        end
+    end
+
+    error("$(rdate) does not evaluate to an historical date for $(date)")
+end

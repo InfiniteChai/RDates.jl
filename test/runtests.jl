@@ -43,6 +43,34 @@ end
     end
 end
 
+@testset "rdate next operator" begin
+    cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
+    with_cal_mgr(cal_mgr) do
+        @test rd"Next(0E,1E)" + Date(2019,1,1) == Date(2019,4,21)
+        @test rd"Next(0E,1E)" + Date(2019,4,21) == Date(2020,4,12)
+        @test rd"Next(0E,1E)" + Date(2019,5,1) == Date(2020,4,12)
+
+        # Next! makes it inclusive of today
+        @test rd"Next!(0E,1E)" + Date(2019,1,1) == Date(2019,4,21)
+        @test rd"Next!(0E,1E)" + Date(2019,4,21) == Date(2019,4,21)
+        @test rd"Next!(0E,1E)" + Date(2019,5,1) == Date(2020,4,12)
+    end
+end
+
+@testset "rdate prev operator" begin
+    cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
+    with_cal_mgr(cal_mgr) do
+        @test rd"Prev(0E,-1E)" + Date(2020,1,1) == Date(2019,4,21)
+        @test rd"Prev(0E,-1E)" + Date(2020,4,12) == Date(2019,4,21)
+        @test rd"Prev(0E,-1E)" + Date(2020,5,1) == Date(2020,4,12)
+
+        # Prev! makes it inclusive of today
+        @test rd"Prev!(0E,-1E)" + Date(2020,1,1) == Date(2019,4,21)
+        @test rd"Prev!(0E,-1E)" + Date(2020,4,12) == Date(2020,4,12)
+        @test rd"Prev!(0E,-1E)" + Date(2020,5,1) == Date(2020,4,12)
+    end
+end
+
 @testset "rdate add ordering" begin
     with_cal_mgr(DummyCalendarManager()) do
         @test rd"1d" + Date(2019,4,16) == Date(2019,4,17)
