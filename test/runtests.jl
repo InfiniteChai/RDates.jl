@@ -60,14 +60,14 @@ end
 @testset "rdate prev operator" begin
     cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
     with_cal_mgr(cal_mgr) do
-        @test rd"Prev(0E,-1E)" + Date(2020,1,1) == Date(2019,4,21)
-        @test rd"Prev(0E,-1E)" + Date(2020,4,12) == Date(2019,4,21)
-        @test rd"Prev(0E,-1E)" + Date(2020,5,1) == Date(2020,4,12)
+        @test rd"Last(0E,-1E)" + Date(2020,1,1) == Date(2019,4,21)
+        @test rd"Last(0E,-1E)" + Date(2020,4,12) == Date(2019,4,21)
+        @test rd"Last(0E,-1E)" + Date(2020,5,1) == Date(2020,4,12)
 
         # Prev! makes it inclusive of today
-        @test rd"Prev!(0E,-1E)" + Date(2020,1,1) == Date(2019,4,21)
-        @test rd"Prev!(0E,-1E)" + Date(2020,4,12) == Date(2020,4,12)
-        @test rd"Prev!(0E,-1E)" + Date(2020,5,1) == Date(2020,4,12)
+        @test rd"Last!(0E,-1E)" + Date(2020,1,1) == Date(2019,4,21)
+        @test rd"Last!(0E,-1E)" + Date(2020,4,12) == Date(2020,4,12)
+        @test rd"Last!(0E,-1E)" + Date(2020,5,1) == Date(2020,4,12)
     end
 end
 

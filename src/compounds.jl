@@ -56,30 +56,20 @@ struct Next{T} <: RDate
 end
 
 function apply(rdate::Next, date::Dates.Date, cal_mgr::CalendarManager)
-    for part in rdate.parts
-        new_date = apply(part, date, cal_mgr)
-        if new_date > date || (rdate.inclusive && new_date == date)
-            return new_date
-        end
-    end
-
-    error("$(rdate) does not evaluate to a future date for $(date)")
+    results = filter(x -> x > date || (rdate.inclusive && x == date), map(x -> apply(x, date, cal_mgr), rdate.parts))
+    length(results) > 0 || error("$(rdate) does not evaluate to a future date for $(date)")
+    minimum(results)
 end
 
-struct Prev{T} <: RDate
+struct Last{T} <: RDate
     parts::StaticArrays.SVector{T,RDate}
     inclusive::Bool
 
-    Prev(parts, inclusive::Bool) = new{length(parts)}(parts, inclusive)
+    Last(parts, inclusive::Bool) = new{length(parts)}(parts, inclusive)
 end
 
-function apply(rdate::Prev, date::Dates.Date, cal_mgr::CalendarManager)
-    for part in rdate.parts
-        new_date = apply(part, date, cal_mgr)
-        if new_date < date || (rdate.inclusive && new_date == date)
-            return new_date
-        end
-    end
-
-    error("$(rdate) does not evaluate to an historical date for $(date)")
+function apply(rdate::Last, date::Dates.Date, cal_mgr::CalendarManager)
+    results = filter(x -> x < date || (rdate.inclusive && x == date), map(x -> apply(x, date, cal_mgr), rdate.parts))
+    length(results) > 0 || error("$(rdate) does not evaluate to a future date for $(date)")
+    maximum(results)
 end

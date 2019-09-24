@@ -16,11 +16,11 @@ PPosZeroInt64() = Parse(p"[0-9][0-9]*", Int64)
     brackets = E"(" + space + sum + space + E")"
     next = (E"Next(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Next(xs, false))
     next_inclusive = (E"Next!(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Next(xs, true))
-    prev = (E"Prev(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Prev(xs, false))
-    prev_inclusive = (E"Prev!(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Prev(xs, true))
+    last = (E"Last(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Last(xs, false))
+    last_inclusive = (E"Last!(" + space + sum + (space + E"," + sum)[0:end] + space + E")" |> xs -> Last(xs, true))
 
     rdate_term = Alt()
-    rdate_expr = rdate_term | brackets | next | next_inclusive | prev | prev_inclusive
+    rdate_expr = rdate_term | brackets | next | next_inclusive | last | last_inclusive
 
     neg = Delayed()
     neg.matcher = rdate_expr | (E"-" + neg > -)
