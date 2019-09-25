@@ -141,7 +141,7 @@ end
 apply(rdate::DayMonthYear, date::Dates.Date, cal_mgr::CalendarManager) = Dates.Date(rdate.year, rdate.month, rdate.day)
 Base.:*(x::DayMonthYear, count::Number) = x
 Base.show(io::IO, rdate::DayMonthYear) = print(io, "$(rdate.day)$(uppercase(Dates.ENGLISH.months_abbr[rdate.month]))$(rdate.year)")
-register_grammar!(PPosInt64() + month_short + PPosInt64() > (d,m,y) -> DayMonth(d,MONTHS[Symbol(m)],y))
+register_grammar!(PPosInt64() + month_short + PPosInt64() > (d,m,y) -> DayMonthYear(d,MONTHS[Symbol(m)],y))
 
 struct NthWeekdays <: RDate
     dayofweek::Int64
