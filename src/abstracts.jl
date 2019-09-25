@@ -20,6 +20,7 @@ apply(rd::RDate, date::Dates.Date) = apply(rd, date, NullCalendarManager())
 # TODO: Look into whether we can introduce a calendar manager for this purpose.
 Base.:+(rd::RDate, date::Dates.Date) = apply(rd, date)
 Base.:+(date::Dates.Date, rd::RDate) = apply(rd, date)
+Base.:-(date::Dates.Date, rd::RDate) = apply(-rd, date)
 Base.:-(x::RDate)::RDate = error("$(typeof(x)) does not support negation")
 
 apply(x::HolidayRoundingConvention, ::Dates.Date, ::Calendar)::Dates.Date = error("$(typeof(x)) does not support apply")
