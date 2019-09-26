@@ -12,6 +12,7 @@ makedocs(
         "Primitives" => "primitives.md",
         "Combinations" => "combinations.md",
         "Business Days" => "business_days.md",
+        "Ranges" => "ranges.md"
     ],
 )
 

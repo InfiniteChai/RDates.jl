@@ -1,16 +1,26 @@
 language: julia
-coveralls: true
+
+os:
+  - linux
+
 julia:
   - 0.7
   - 1.0
+  - 1.1
   - nightly
 
-jobs:
-  include:
-    - stage: "Documentation"
-    julia: 1.0
-    os: linux
-    script:
-      - julia --project=docs/ -e 'using Pkg; Pkg.instantiate(); Pkg.develop(PackageSpec(path=pwd()))'
-      - julia --project=docs/ docs/make.jl
-    after_success: skip
+notifications:
+  email: false
+
+script:
+  - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build(); Pkg.test("RDates"; coverage=true)'
+
+after_success:
+  # Install required packages for coverage and documentation
+  - julia --project -e 'import Pkg; Pkg.add("Coverage");'
+  - julia --project -e 'import Pkg; Pkg.add("Documenter"); Pkg.add("DocumenterTools");'
+
+  # Submit the test coverage report
+  - julia --project -e 'using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  #Buidl and deploy documentation
+  - julia --project ./docs/make.jl
