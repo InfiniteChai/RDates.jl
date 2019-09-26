@@ -35,8 +35,8 @@ julia> using RDates
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://infinitechai.github.io/RDates.jl/stable
 
-[travis-img]: https://travis-ci.org/InfiniteChai/RDates.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/InfiniteChai/RDates.jl
+[travis-img]: https://travis-ci.com/InfiniteChai/RDates.jl.svg?branch=master
+[travis-url]: https://travis-ci.com/InfiniteChai/RDates.jl
 
 [codecov-img]: https://codecov.io/gh/InfiniteChai/RDates.jl/branch/master/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/InfiniteChai/RDates.jl
