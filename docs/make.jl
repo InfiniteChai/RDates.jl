@@ -4,7 +4,7 @@ using Documenter, RDates
 makedocs(
     modules = [RDates],
     clean = false,
-    format = :html,
+    format = Documenter.HTML(),
     sitename = "RDates.jl",
     authors = "Iain Skett",
     pages = [
@@ -17,9 +17,5 @@ makedocs(
 )
 
 deploydocs(
-    julia = "1.1",
-    repo = "github.com/InfiniteChai/RDates.jl.git",
-    target = "build",
-    deps = nothing,
-    make = nothing,
+    repo = "github.com/InfiniteChai/RDates.jl.git"    
 )
