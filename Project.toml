@@ -1,7 +1,7 @@
 name = "RDates"
 uuid = "42063a9e-4db3-11e9-2c9c-956b066f8181"
 authors = ["Iain Skett <iain.skett@gmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
