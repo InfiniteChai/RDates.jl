@@ -6,7 +6,7 @@ As such the RDate package provides the construct to allow you to work with holid
 
 !!! note
 
-  It is currently not within the scope of RDates to build a calendar system, but I do envisage this as the next step as the essential components for it are provided.
+    It is currently not within the scope of RDates to build a calendar system, but I do envisage this as the next step as the essential components for it are provided.
 
 Before we walk through how this is integrated into the RDate language, we'll look at how calendars are modelled.
 
@@ -69,14 +69,14 @@ It can also be handy to work in business days at times, rather than calendar day
 
 !!! note
 
-  For the zero increment operator `0b@CALENDAR` we select *Next Business Day*. However it's negation with `-0b@CALENDAR` will switch to *Previous Business Day*.
+    For the zero increment operator `0b@CALENDAR` we select *Next Business Day*. However it's negation with `-0b@CALENDAR` will switch to *Previous Business Day*.
 
-  ```julia
-  cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-  cal_mgr = RDates.SimpleCalendarManager(cals)
-  with_cal_mgr(cal_mgr) do
-    rd"0b@WEEKEND" + Date(2019,9,28) == Date(2019,9,30)
-    rd"-0b@WEEKEND" + Date(2019,9,28) == Date(2019,9,27)
-    rd"10b@WEEKEND" + Date(2019,9,27) == Date(2019,10,11)    
-  end
-  ```
+    ```julia
+    cals = Dict("WEEKEND" => RDates.WeekendCalendar())
+    cal_mgr = RDates.SimpleCalendarManager(cals)
+    with_cal_mgr(cal_mgr) do
+      rd"0b@WEEKEND" + Date(2019,9,28) == Date(2019,9,30)
+      rd"-0b@WEEKEND" + Date(2019,9,28) == Date(2019,9,27)
+      rd"10b@WEEKEND" + Date(2019,9,27) == Date(2019,10,11)    
+    end
+    ```

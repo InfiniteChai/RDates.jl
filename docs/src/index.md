@@ -15,11 +15,11 @@ The aim is to provide a standard toolset to allow you to answer questions such a
 ## Installation
 
 RDates can be installed using the Julia package manager. From the Julia REPL, type `]` to enter the Pkg REPL mode and run
-```
+```julia
 pkg> add RDates
 ```
 
 At this point you can now start using RDates in your current Julia session using the following command
-```
+```julia
 julia> using RDates
 ```
