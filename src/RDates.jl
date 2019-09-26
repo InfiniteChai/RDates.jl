@@ -18,6 +18,9 @@ include("ranges.jl")
 # Export the macro and non-macro parsers.
 export @rd_str
 export rdate
+export is_holiday
+export calendar
+export apply
 
 include("build.jl")
 
