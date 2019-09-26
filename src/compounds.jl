@@ -32,21 +32,21 @@ Base.:-(left::RDate, right::RDate) = combine(left, -right)
 Base.:*(count::Number, rdate::RDate) = rdate*count
 Base.:*(rdate::RDate, count::Number) = RDateRepeat(count, rdate)
 
-struct CalendarAdj{R <: RDate,S <: HolidayRoundingConvention} <: RDate
-    calendar_name::String
+struct CalendarAdj{R <: RDate, S <: HolidayRoundingConvention, T} <: RDate
+    calendar_names::StaticArrays.SVector{T,String}
     part::R
     rounding::S
 
-    CalendarAdj(calendar_name, part::R, rounding::S) where {R <: RDate, S <: HolidayRoundingConvention} = new{R, S}(calendar_name, part, rounding)
+    CalendarAdj(calendar_names, part::R, rounding::S) where {R <: RDate, S <: HolidayRoundingConvention} = new{R, S, length(calendar_names)}(calendar_names, part, rounding)
 end
 
 function apply(rdate::CalendarAdj, date::Dates.Date, cal_mgr::CalendarManager)
     base_date = apply(rdate.part, date, cal_mgr)
-    cal = calendar(cal_mgr, rdate.calendar_name)
+    cal = calendar(cal_mgr, rdate.calendar_names)
     apply(rdate.rounding, base_date, cal)
 end
 
-Base.:-(x::CalendarAdj) = CalendarAdj(x.calendar_name, -x.part, x.rounding)
+Base.:-(x::CalendarAdj) = CalendarAdj(x.calendar_names, -x.part, x.rounding)
 
 struct Next{T} <: RDate
     parts::StaticArrays.SVector{T,RDate}

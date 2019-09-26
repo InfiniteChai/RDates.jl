@@ -1,4 +1,5 @@
 import Dates
+import StaticArrays
 
 const WEEKDAYS = Dict(map(reverse,enumerate(map(Symbol ∘ uppercase, Dates.ENGLISH.days_of_week_abbr))))
 const NTH_PERIODS = ["1st", "2nd", "3rd", "4th", "5th"]
@@ -212,17 +213,17 @@ Base.show(io::IO, rdate::Weekdays) = print(io, "$(rdate.count)$(uppercase(Dates.
 register_grammar!(PNonZeroInt64() + weekday_short > (i,wd) -> Weekdays(WEEKDAYS[Symbol(wd)], i))
 register_grammar!(PNonZeroInt64() + weekday_short + E"!" > (i,wd) -> Weekdays(WEEKDAYS[Symbol(wd)], i, true))
 
-struct BizDays{S <: HolidayRoundingConvention} <: RDate
+struct BizDays{S <: HolidayRoundingConvention, T} <: RDate
     days::Int64
-    calendar_name::String
+    calendar_names::StaticArrays.SVector{T,String}
     rounding::S
 
-    BizDays(days::Int64, calendar_name::String) = BizDays(days, calendar_name, days >= 0 ? HolidayRoundingNBD() : HolidayRoundingPBD())
-    BizDays(days::Int64, calendar_name::String, rounding::S) where {S <: HolidayRoundingConvention} = new{S}(days, calendar_name, rounding)
+    BizDays(days::Int64, calendar_names) = BizDays(days, calendar_names, days >= 0 ? HolidayRoundingNBD() : HolidayRoundingPBD())
+    BizDays(days::Int64, calendar_names, rounding::S) where {S <: HolidayRoundingConvention} = new{S,length(calendar_names)}(days, calendar_names, rounding)
 end
 
 function apply(rdate::BizDays, date::Dates.Date, cal_mgr::CalendarManager)
-    cal = calendar(cal_mgr, rdate.calendar_name)
+    cal = calendar(cal_mgr, rdate.calendar_names)
     count = rdate.days
     if rdate.days > 0
         while count > 0
@@ -241,7 +242,7 @@ function apply(rdate::BizDays, date::Dates.Date, cal_mgr::CalendarManager)
     return date
 end
 
-Base.:-(x::BizDays{HolidayRoundingNBD}) = BizDays(-x.days, x.calendar_name, HolidayRoundingPBD())
-Base.:-(x::BizDays{HolidayRoundingPBD}) = BizDays(-x.days, x.calendar_name, HolidayRoundingNBD())
+Base.:-(x::BizDays{HolidayRoundingNBD}) = BizDays(-x.days, x.calendar_names, HolidayRoundingPBD())
+Base.:-(x::BizDays{HolidayRoundingPBD}) = BizDays(-x.days, x.calendar_names, HolidayRoundingNBD())
 
-register_grammar!(PPosZeroInt64() + E"b@" + p"[a-zA-Z\\\\\\s\\|]+" > (days,calendar_name) -> BizDays(days, String(calendar_name)))
+register_grammar!(PPosZeroInt64() + E"b@" + p"[a-zA-Z\\\\\\s\\|]+" > (days,calendar_name) -> BizDays(days, map(String, split(calendar_name, "|"))))

@@ -24,7 +24,7 @@ PPosZeroInt64() = Parse(p"[0-9][0-9]*", Int64)
 
     neg = Delayed()
     neg.matcher = rdate_expr | (E"-" + neg > -)
-    cal_adj = neg + (E"@" + p"[a-zA-Z\\\\\\s\\|]+" + E"[" + Alt(map(Pattern, collect(keys(HOLIDAY_ROUNDING_MAPPINGS)))...) + E"]")[0:1] |> xs -> length(xs) == 1 ? xs[1] : CalendarAdj(xs[2], xs[1], HOLIDAY_ROUNDING_MAPPINGS[xs[3]])
+    cal_adj = neg + (E"@" + p"[a-zA-Z\\\\\\s\\|]+" + E"[" + Alt(map(Pattern, collect(keys(HOLIDAY_ROUNDING_MAPPINGS)))...) + E"]")[0:1] |> xs -> length(xs) == 1 ? xs[1] : CalendarAdj(map(String, split(xs[2], "|")), xs[1], HOLIDAY_ROUNDING_MAPPINGS[xs[3]])
     mul = E"*" + (cal_adj | PPosInt64())
     prod = (cal_adj | ((PPosInt64() | cal_adj) + mul[0:end])) |> Base.prod
     add = E"+" + prod

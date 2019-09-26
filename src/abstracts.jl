@@ -13,7 +13,7 @@ using Compat
 struct NullCalendarManager <: CalendarManager end
 
 is_holiday(x::Calendar, ::Dates.Date) = error("$(typeof(x)) does not support is_holiday")
-calendar(x::CalendarManager, ::String)::Calendar = error("$(typeof(x)) does not support calendar")
+calendar(x::CalendarManager, names)::Calendar = error("$(typeof(x)) does not support calendar")
 
 apply(rd::RDate, ::Dates.Date, ::CalendarManager)::Dates.Date = error("$(typeof(rd)) does not support date apply")
 apply(rd::RDate, date::Dates.Date) = apply(rd, date, NullCalendarManager())

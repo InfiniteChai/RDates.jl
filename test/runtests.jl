@@ -23,13 +23,13 @@ Base.:+(x::Date, y::RDates.RDate) = RDates.apply(y, x, calendar_mgr)
 @testset "rdate calendar adjustments" begin
     cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
     with_cal_mgr(cal_mgr) do
-        @test RDates.CalendarAdj("WEEKEND", rd"1d", RDates.HolidayRoundingNBD()) + Date(2019,4,16) == Date(2019,4,17)
-        @test RDates.CalendarAdj("WEEKEND", rd"1d", RDates.HolidayRoundingNBD()) + Date(2019,9,27) == Date(2019,9,30)
-        @test RDates.CalendarAdj("WEEKEND", rd"1d", RDates.HolidayRoundingNBD()) + Date(2019,11,29) == Date(2019,12,2)
-        @test RDates.CalendarAdj("WEEKEND", rd"1d", RDates.HolidayRoundingNBDSM()) + Date(2019,11,29) == Date(2019,11,29)
+        @test RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()) + Date(2019,4,16) == Date(2019,4,17)
+        @test RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()) + Date(2019,9,27) == Date(2019,9,30)
+        @test RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()) + Date(2019,11,29) == Date(2019,12,2)
+        @test RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBDSM()) + Date(2019,11,29) == Date(2019,11,29)
 
-        @test rd"1d@WEEKEND[NBD]" == RDates.CalendarAdj("WEEKEND", rd"1d", RDates.HolidayRoundingNBD())
-        @test rd"(2w + 3E)@WEEKEND[NBDSM]" == RDates.CalendarAdj("WEEKEND", rd"2w + 3E", RDates.HolidayRoundingNBDSM())
+        @test rd"1d@WEEKEND[NBD]" == RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD())
+        @test rd"(2w + 3E)@WEEKEND[NBDSM]" == RDates.CalendarAdj(["WEEKEND"], rd"2w + 3E", RDates.HolidayRoundingNBDSM())
     end
 end
 
