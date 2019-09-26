@@ -29,7 +29,7 @@ PPosZeroInt64() = Parse(p"[0-9][0-9]*", Int64)
     prod = (cal_adj | ((PPosInt64() | cal_adj) + mul[0:end])) |> Base.prod
     add = E"+" + prod
     sub = E"-" + prod > -
-    sum.matcher = prod + (add | sub)[0:end] |> Base.sum
+    sum.matcher = (sub | prod) + (add | sub)[0:end] |> Base.sum
 
     entry = sum + Eos()
 end
