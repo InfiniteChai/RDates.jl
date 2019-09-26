@@ -21,6 +21,7 @@ export rdate
 export is_holiday
 export calendar
 export apply
+export with_cal_mgr
 
 include("build.jl")
 

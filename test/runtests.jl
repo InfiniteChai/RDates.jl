@@ -5,21 +5,6 @@ using ParserCombinator
 
 struct DummyCalendarManager <: RDates.CalendarManager end
 
-function with_cal_mgr(f::Function, cal_mgr::RDates.CalendarManager)
-    global calendar_mgr
-    current_cal_mgr = calendar_mgr
-    calendar_mgr = cal_mgr
-    try
-        f()
-    finally
-        calendar_mgr = current_cal_mgr
-    end
-end
-
-calendar_mgr = nothing
-Base.:+(x::RDates.RDate, y::Date) = RDates.apply(x, y, calendar_mgr)
-Base.:+(x::Date, y::RDates.RDate) = RDates.apply(y, x, calendar_mgr)
-
 @testset "rdate calendar adjustments" begin
     cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
     with_cal_mgr(cal_mgr) do

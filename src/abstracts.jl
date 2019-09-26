@@ -17,9 +17,21 @@ calendar(x::CalendarManager, names)::Calendar = error("$(typeof(x)) does not sup
 
 apply(rd::RDate, ::Dates.Date, ::CalendarManager)::Dates.Date = error("$(typeof(rd)) does not support date apply")
 apply(rd::RDate, date::Dates.Date) = apply(rd, date, NullCalendarManager())
-# TODO: Look into whether we can introduce a calendar manager for this purpose.
-Base.:+(rd::RDate, date::Dates.Date) = apply(rd, date)
-Base.:+(date::Dates.Date, rd::RDate) = apply(rd, date)
+
+calendar_mgr = NullCalendarManager()
+function with_cal_mgr(f::Function, cal_mgr::CalendarManager)
+    global calendar_mgr
+    current_cal_mgr = calendar_mgr
+    calendar_mgr = cal_mgr
+    try
+        f()
+    finally
+        calendar_mgr = current_cal_mgr
+    end
+end
+
+Base.:+(rd::RDate, date::Dates.Date) = apply(rd, date, calendar_mgr)
+Base.:+(date::Dates.Date, rd::RDate) = apply(rd, date, calendar_mgr)
 Base.:-(date::Dates.Date, rd::RDate) = apply(-rd, date)
 Base.:-(x::RDate)::RDate = error("$(typeof(x)) does not support negation")
 
