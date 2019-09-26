@@ -187,17 +187,19 @@ register_grammar!(Alt(map(Pattern, NTH_LAST_PERIODS)...) + space + weekday_short
 struct Weekdays <: RDate
     dayofweek::Int64
     count::Int64
+    inclusive::Bool
 
-    Weekdays(dayofweek::Int64, count::Int64) = new(dayofweek, count)
+    Weekdays(dayofweek::Int64, count::Int64) = new(dayofweek, count, false)
+    Weekdays(dayofweek::Int64, count::Int64, inclusive::Bool) = new(dayofweek, count, true)
 end
 
 function apply(rdate::Weekdays, date::Dates.Date, cal_mgr::CalendarManager)
     dayδ = Dates.dayofweek(date) - rdate.dayofweek
     weekδ = rdate.count
 
-    if rdate.count < 0 && dayδ > 0
+    if rdate.count < 0 && (dayδ > 0 || (rdate.inclusive && dayδ == 0))
         weekδ += 1
-    elseif rdate.count > 0 && dayδ < 0
+    elseif rdate.count > 0 && (dayδ < 0 || (rdate.inclusive && dayδ == 0))
         weekδ -= 1
     end
 
@@ -208,6 +210,7 @@ Base.:-(rdate::Weekdays) = Weekdays(rdate.dayofweek, -rdate.count)
 
 Base.show(io::IO, rdate::Weekdays) = print(io, "$(rdate.count)$(uppercase(Dates.ENGLISH.days_of_week_abbr[rdate.dayofweek]))")
 register_grammar!(PNonZeroInt64() + weekday_short > (i,wd) -> Weekdays(WEEKDAYS[Symbol(wd)], i))
+register_grammar!(PNonZeroInt64() + weekday_short + E"!" > (i,wd) -> Weekdays(WEEKDAYS[Symbol(wd)], i, true))
 
 struct BizDays{S <: HolidayRoundingConvention} <: RDate
     days::Int64
