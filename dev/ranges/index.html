@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Ranges · RDates.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="../assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>RDates.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../">Introduction</a></li><li><a class="toctext" href="../primitives/">Primitives</a></li><li><a class="toctext" href="../combinations/">Combinations</a></li><li><a class="toctext" href="../business_days/">Business Days</a></li><li class="current"><a class="toctext" href>Ranges</a><ul class="internal"></ul></li></ul></nav><article id="docs"><header><nav><ul><li><a href>Ranges</a></li></ul><a class="edit-page" href="https://github.com/InfiniteChai/RDates.jl/blob/master/docs/src/ranges.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Ranges</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Ranges-1" href="#Ranges-1">Ranges</a></h1><p>As well as performing relative date operations, you can also get a range of dates for a given period. This can provide an infinite range, or appropriate clipped.</p><pre><code class="language-julia">julia&gt; collect(Iterators.take(range(Date(2019,4,17), rd&quot;1d&quot;),3))
+3-element Array{Date,1}:
+ 2017-01-25
+ 2017-01-26
+ 2017-01-27
+julia&gt; collect(range(Date(2019,4,17), Date(2019,4,21), rd&quot;2d&quot;))
+3-element Array{Date,1}:
+ 2019-04-17
+ 2019-04-19
+ 2019-04-21
+julia&gt; collect(range(Date(2019,4,17), Date(2019,4,21), rd&quot;1d&quot;, inc_from=false, inc_to=false))
+3-element Array{Date,1}:
+ 2019-04-18
+ 2019-04-19
+ 2019-04-20</code></pre><p>This should give the basic building blocks to also come up with as complex functionality as required. For example, to get the next 3 future <a href="https://en.wikipedia.org/wiki/IMM_dates">IMM Dates</a> we can go as follows</p><pre><code class="language-julia">julia&gt; today = Date(2017,10,27)
+julia&gt; start = rd&quot;1MAR+3rd WED&quot; + today
+julia&gt; immdates = Iterators.take(Iterators.filter(x -&gt; x &gt;= today, range(start, rd&quot;3m+3rd WED&quot;)), 3)
+julia&gt; collect(immdates)
+3-element Array{Date,1}:
+ 2017-12-20
+ 2018-03-21
+ 2018-06-20</code></pre><footer><hr/><a class="previous" href="../business_days/"><span class="direction">Previous</span><span class="title">Business Days</span></a></footer></article></body></html>
