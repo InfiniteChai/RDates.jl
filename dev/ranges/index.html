@@ -13,7 +13,7 @@ julia&gt; collect(range(Date(2019,4,17), Date(2019,4,21), rd&quot;1d&quot;, inc_
 3-element Array{Date,1}:
  2019-04-18
  2019-04-19
- 2019-04-20</code></pre><p>This should give the basic building blocks to also come up with as complex functionality as required. For example, to get the next 3 future <a href="https://en.wikipedia.org/wiki/IMM_dates">IMM Dates</a> we can go as follows</p><pre><code class="language-julia">julia&gt; today = Date(2017,10,27)
+ 2019-04-20</code></pre><p>This should give the basic building blocks to also come up with as complex functionality as required. For example, to get the next 3 future <a href="https://en.wikipedia.org/wiki/IMM_dates">IMM Dates</a></p><pre><code class="language-julia">julia&gt; today = Date(2017,10,27)
 julia&gt; start = rd&quot;1MAR+3rd WED&quot; + today
 julia&gt; immdates = Iterators.take(Iterators.filter(x -&gt; x &gt;= today, range(start, rd&quot;3m+3rd WED&quot;)), 3)
 julia&gt; collect(immdates)
