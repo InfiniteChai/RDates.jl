@@ -201,3 +201,11 @@ end
     @test_throws ParserCombinator.ParserException rdate("2d+")
     @test_throws ParserCombinator.ParserException rdate("d")
 end
+
+@testset "string form" begin
+    @test string(rd"1d") == "1d"
+    @test string(rd"3d + 2w") == "17d"
+    @test string(rd"2*(1m + 1y)") == "2m[LDOM;PDOM]+2y[LDOM;PDOM]"
+    @test string(rd"2*roll(1m)") == "2*roll(1m[LDOM;PDOM])"
+    @test string(rd"1m[LDOM;PDOMEOM@A]@B[NBD]") == "1m[LDOM;PDOMEOM@A]@B[NBD]"
+end

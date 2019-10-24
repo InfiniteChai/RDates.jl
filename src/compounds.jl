@@ -45,5 +45,5 @@ function apply(rdate::CalendarAdj, date::Dates.Date, cal_mgr::CalendarManager)
     apply(rdate.rounding, base_date, cal)
 end
 multiply_no_roll(rdate::CalendarAdj, count::Integer) = CalendarAdj(rdate.calendar_names, multiply_no_roll(rdate.part, count), rdate.rounding)
-
 Base.:-(x::CalendarAdj) = CalendarAdj(x.calendar_names, -x.part, x.rounding)
+Base.show(io::IO, rdate::CalendarAdj) = print(io, "$(rdate.part)@$(join(rdate.calendar_names, "|"))[$(rdate.rounding)]")

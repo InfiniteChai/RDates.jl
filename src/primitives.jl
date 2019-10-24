@@ -174,6 +174,9 @@ register_grammar!(PPosInt64() + month_short > (d,m) -> DayMonth(d,MONTHS[Symbol(
 
 struct Date <: RDate
     date::Dates.Date
+
+    Date(date::Dates.Date) = new(date)
+    Date(y::Int64, m::Int64, d::Int64) = new(Dates.Date(y, m, d))
 end
 
 multiply_roll(x::Date, ::Integer) = x

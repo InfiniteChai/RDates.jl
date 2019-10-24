@@ -7,6 +7,7 @@ function apply(::HolidayRoundingNBD, date::Dates.Date, calendar::Calendar)::Date
     end
     date
 end
+Base.show(io::IO, ::HolidayRoundingNBD) = print(io, "NBD")
 
 struct HolidayRoundingPBD <: HolidayRoundingConvention end
 function apply(::HolidayRoundingPBD, date::Dates.Date, calendar::Calendar)::Dates.Date
@@ -15,6 +16,7 @@ function apply(::HolidayRoundingPBD, date::Dates.Date, calendar::Calendar)::Date
     end
     date
 end
+Base.show(io::IO, ::HolidayRoundingPBD) = print(io, "PBD")
 
 struct HolidayRoundingNBDSM <: HolidayRoundingConvention end
 function apply(::HolidayRoundingNBDSM, date::Dates.Date, calendar::Calendar)::Dates.Date
@@ -32,6 +34,7 @@ function apply(::HolidayRoundingNBDSM, date::Dates.Date, calendar::Calendar)::Da
 
     new_date
 end
+Base.show(io::IO, ::HolidayRoundingNBDSM) = print(io, "NBDSM")
 
 struct HolidayRoundingPBDSM <: HolidayRoundingConvention end
 function apply(::HolidayRoundingPBDSM, date::Dates.Date, calendar::Calendar)::Dates.Date
@@ -49,8 +52,10 @@ function apply(::HolidayRoundingPBDSM, date::Dates.Date, calendar::Calendar)::Da
 
     new_date
 end
+Base.show(io::IO, ::HolidayRoundingPBDSM) = print(io, "PBDSM")
 
 struct HolidayRoundingNR <: HolidayRoundingConvention end
 apply(::HolidayRoundingNR, date::Dates.Date, ::Calendar) = date
+Base.show(io::IO, ::HolidayRoundingNR) = print(io, "NR")
 
 const HOLIDAY_ROUNDING_MAPPINGS = Dict("NR" => HolidayRoundingNR(), "NBD" => HolidayRoundingNBD(), "PBD" => HolidayRoundingPBD(), "NBDSM" => HolidayRoundingNBDSM(), "PBDSM" => HolidayRoundingPBDSM())
