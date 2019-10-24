@@ -20,7 +20,7 @@ julia> collect(range(Date(2019,4,17), Date(2019,4,21), rd"1d", inc_from=false, i
  2019-04-20
 ```
 
-This should give the basic building blocks to also come up with as complex functionality as required. For example, to get the next 3 future [IMM Dates](https://en.wikipedia.org/wiki/IMM_dates) we can go as follows
+This should give the basic building blocks to also come up with as complex functionality as required. For example, to get the next 3 future [IMM Dates](https://en.wikipedia.org/wiki/IMM_dates)
 
 ```julia
 julia> today = Date(2017,10,27)

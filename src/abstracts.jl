@@ -82,7 +82,7 @@ Base.:-(x::RDate)::RDate = error("$(typeof(x)) does not support negation")
 Apply the appropriate adjustment to the date if it falls on a holiday for the given calendar. Be aware
 that there is no strict requirement that the resolved date will not be a holiday for the given calendar.
 """
-apply(x::HolidayRoundingConvention, ::Dates.Date, ::Calendar)::Dates.Date = error("$(typeof(x)) does not support apply")
+apply(x::HolidayRoundingConvention, date::Dates.Date, calendar::Calendar) = error("$(typeof(x)) does not support apply")
 
 """
     apply(rounding::InvalidDayConvention, day::Integer, month::Integer, year::Integer)::Dates.Date
@@ -92,7 +92,7 @@ Given a day, month and year which do not generate a valid date, adjust them in s
 adjust(x::InvalidDayConvention, day, month, year) = error("$(typeof(x)) does not support adjust")
 
 """
-    apply(rounding::MonthIncrementConvention, day::Integer, month::Integer, year::Integer, new_month::Integer, new_year::Integer)::Tuple{Integer, Integer, Integer}
+    apply(rounding::MonthIncrementConvention, from::Dates.Date, new_month::Integer, new_year::Integer, calendar_mgr::CalendarManager)::Tuple{Integer, Integer, Integer}
 
 Given the initial day, month and year that we're moving from and a generated new month and new year, determine the new
 day, month and year that should be used. Generally used to handle specific features around preservation of month ends
@@ -100,5 +100,7 @@ or days of week, if required.
 
 Note that the generated (day, month, year) do not need to be able to produce a valid date. The invalid day convention
 should be applied, if required, after this calculation.
+
+May use a calendar manager if required as well
 """
-adjust(x::MonthIncrementConvention, day, month, year, new_month, new_year) = error("$(typeof(x)) does not support adjust")
+adjust(x::MonthIncrementConvention, from::Dates.Date, new_month, new_year, calendar_mgr::CalendarManager) = error("$(typeof(x)) does not support adjust")
