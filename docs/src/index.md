@@ -4,7 +4,7 @@
 
 This is a project that builds around the [Dates](https://docs.julialang.org/en/v1/stdlib/Dates/) module to allow complex date operations.  
 
-The aim is to provide a standard toolset to allow you to answer questions such as *when is the next Easter* or *what is the 3rd Wednesday of March next year?*
+The aim is to provide a standard toolset to allow you to answer questions such as *when is the next Easter* or *what are the next 4 IMM dates from today?*
 
 ## Package Features ##
 - A generic, extendable algebra for date operations with a rich set of primitives.

@@ -25,7 +25,7 @@ PPosZeroInt64() = Parse(p"[0-9][0-9]*", Int64)
     # Our decision on the grammar choice for rdates is purely one of history.
     # * will imply 'no roll', so 2*1m == 2m
     # *roll will imply 'roll', so 2*roll(1m) == 1m + 1m
-    mult_roll = cal_adj | ((PPosInt64() + space + E"*" + space + E"roll(" + space + cal_adj + space + E")") > (c, rd) -> multiply_roll(rd, c)) | ((E"roll(" + space + cal_adj + space + E")" + space + E"*" + space + PPosInt64()) > (rd, c) -> multiply_roll(rd, c))
+    mult_roll = cal_adj | ((PPosInt64() + space + E"*" + space + E"roll(" + space + sum + space + E")") > (c, rd) -> multiply_roll(rd, c)) | ((E"roll(" + space + sum + space + E")" + space + E"*" + space + PPosInt64()) > (rd, c) -> multiply_roll(rd, c))
 
     mult_no_roll = Delayed()
     mult_no_roll = mult_roll | ((PPosInt64() + space + E"*" + space + mult_roll) > (c,rd) -> multiply_no_roll(rd, c)) | ((mult_roll + space + E"*" + space + PPosInt64()) > (rd,c) -> multiply_no_roll(rd, c))

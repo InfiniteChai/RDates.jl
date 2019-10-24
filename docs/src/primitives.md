@@ -2,13 +2,6 @@
 
 RDates is designed to allow complex date operations to be completed using basic primitive types. Each of these primitive types and operations are explained in more detail in subsequent sections.
 
-First, a motivating example from our introduction of *when is the next Easter?*
-```julia
-julia> using RDates, Dates
-julia> rd"Next(0E,1E)" + Date(2019,9,27)
-2020-04-12
-```
-
 We now go through each of the primitive types, from which we can combine together using compounding operations.
 
 ## Days
@@ -50,7 +43,8 @@ We define conventions to determine what to do if adding (or subtracting) the mon
 We also need to understand what to do when you add a month. Most of the time you'll be just looking to maintain the same day, but it can also sometimes be preferable to maintain the last day of the month.
 
 - **Preserve Day Of Month** or **PDOM** means that we'll always make sure we land on the same day (though invalid day conventions may kick in).
-- **Preserve Day Of Month And End Of Month** or **PDOMEOM** means that we'll preserve the day of the month, unless the base date falls on the end of the month, then we'll keep to the end of the month going forward (noting that this will be applied prior to invalid day conventions).
+- **Preserve Day Of Month And End Of Month** or **PDOMEOM** means that we'll preserve the day of the month, unless the base date falls on the end of the month, then we'll keep to the end of the month going forward (noting that this will be applied prior to invalid day conventions). This can also be provided a set of calendars, to allow it to work as the last business day of the month.
+
 
 We can now combine these together to start working with month adjustments. These arguments are passed in square brackets, semi colon separated, after the `m` using their shortened naming conventions.
 

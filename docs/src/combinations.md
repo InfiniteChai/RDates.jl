@@ -54,47 +54,19 @@ julia> rd"1MAR + 3rd WED" + Date(2019,1,1)
 
 ## Repeats
 
-You can multiply any RDate by a positive integer to repeat its application that many times.
+You can multiply any RDate by a positive integer to repeat its application, or *rolling* it, that many times.
 
 ```julia
-julia> rd"2 * 1m" + Date(2019,1,31)
+julia> rd"2*roll(1m)" + Date(2019,1,31)
 2019-03-28
-julia> rd"-5*(3d + 4w)" + Date(2019,1,1)
+julia> rd"-5*roll(3d + 4w)" + Date(2019,1,1)
 2018-07-30
 ```
 
-## Next
-
-A number of the primitive operators that we've discussed can be dependent on the base date to determine whether they're in the future and how far.
-
-The *Next* operator provides a mechanism to find the nearest date in the future, given a set of RDates to be applied. We also provide *Next!* to be inclusive of the date applied to.
-
+It's worth noting that we also support non rolled multiplication, which will attempt to embed the multiplication within the rdate.
 ```julia
-julia> rd"Next(0E, 1E)" + Date(2019,1,1)
-2019-04-21
-julia> rd"Next(0E, 1E)" + Date(2019,4,21)
-2020-04-12
-julia> rd"Next!(0E, 1E)" + Date(2019,4,21)
-2019-04-21
-```
-
-If you want to get the next [IMM Date](https://en.wikipedia.org/wiki/IMM_dates) this can be easily achieved
-
-```julia
-julia> rd"Next(1MAR+3rd WED, 1JUN+3rd WED, 1SEP+3rd WED, 1DEC+3rd WED, 1y+1MAR+3rd WED)" + Date(2019,1,1)
-2019-03-20
-julia> rd"Next(1MAR+3rd WED, 1JUN+3rd WED, 1SEP+3rd WED, 1DEC+3rd WED, 1y+1MAR+3rd WED)" + Date(2019,8,13)
-2019-09-18
-```
-
-## Last
-The counterpart to *Next* is *Last*, so you can the most recent date in the past.
-
-```julia
-julia> rd"Last(0E, -1E)" + Date(2020,1,1)
-2019-04-21
-julia> rd"Last(0E, -1E)" + Date(2019,4,21)
-2018-04-01
-julia> rd"Last!(0E, -1E)" + Date(2019,4,21)
-2019-04-21
+julia> rd"2*1m" + Date(2019,1,31)
+2019-03-31
+julia> rd"2*1m" == rd"2m"
+true
 ```
