@@ -9,6 +9,12 @@ Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 ParserCombinator = "fae87a5f-d1ad-5cf0-8f61-c941e1580b46"
 
+[compat]
+julia = "1"
+ParserCombinator = "^2.0.0"
+AutoHashEquals = "0.2.0"
+Compat = "^3.31.0"
+
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
