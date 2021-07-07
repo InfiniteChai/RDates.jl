@@ -22,7 +22,7 @@ PPosZeroInt64() = Parse(p"[0-9][0-9]*", Int64)
     neg.matcher = rdate_expr | (E"-" + neg > -)
     cal_adj = neg + (E"@" + p"[a-zA-Z\\\\\\s\\|]+" + E"[" + Alt(map(Pattern, collect(keys(HOLIDAY_ROUNDING_MAPPINGS)))...) + E"]")[0:1] |> xs -> length(xs) == 1 ? xs[1] : CalendarAdj(map(String, split(xs[2], "|")), xs[1], HOLIDAY_ROUNDING_MAPPINGS[xs[3]])
 
-    # Our decision on the grammar choice for rdates is purely one of history.
+    # Our decision on the grammar choice for rdates is purely one of choice.
     # * will imply 'no roll', so 2*1m == 2m
     # *roll will imply 'roll', so 2*roll(1m) == 1m + 1m
     mult_roll = cal_adj | ((PPosInt64() + space + E"*" + space + E"roll(" + space + sum + space + E")") > (c, rd) -> multiply_roll(rd, c)) | ((E"roll(" + space + sum + space + E")" + space + E"*" + space + PPosInt64()) > (rd, c) -> multiply_roll(rd, c))

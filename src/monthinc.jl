@@ -1,10 +1,23 @@
 import Dates
 using AutoHashEquals
 
+"""
+    MonthIncrementPDOM <: MonthIncrementConvention
+
+When incrementing by months (or years) then preserve the day of month from
+originally requested.
+"""
 struct MonthIncrementPDOM <: MonthIncrementConvention end
 adjust(::MonthIncrementPDOM, date::Dates.Date, new_month, new_year, cal_mgr::CalendarManager) = (new_year, new_month, Dates.day(date))
 Base.show(io::IO, ::MonthIncrementPDOM) = print(io, "PDOM")
 
+
+"""
+    MonthIncrementPDOMEOM <: MonthIncrementConvention
+
+When incrementing by months (or years) then preserve the day of month from
+originally requested, unless it's the last day of the month then maintain that
+"""
 @auto_hash_equals struct MonthIncrementPDOMEOM <: MonthIncrementConvention
     calendars::Union{Vector{String}, Nothing}
 
@@ -33,4 +46,7 @@ end
 
 Base.show(io::IO, mic::MonthIncrementPDOMEOM) = mic.calendars === nothing ? print(io, "PDOMEOM") : print(io, "PDOMEOM@$(join(mic.calendars, "|"))")
 
-const MONTH_INCREMENT_MAPPINGS = Dict("PDOM" => MonthIncrementPDOM(), "PDOMEOM" => MonthIncrementPDOMEOM())
+const MONTH_INCREMENT_MAPPINGS = Dict(
+    "PDOM" => MonthIncrementPDOM(),
+    "PDOMEOM" => MonthIncrementPDOMEOM()
+)

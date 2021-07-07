@@ -36,9 +36,9 @@ end
 Base.IteratorSize(::Type{RDateRange}) = Base.SizeUnknown()
 Base.eltype(::Type{RDateRange}) = Dates.Date
 function Base.range(from::Dates.Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true, cal_mgr::Union{CalendarManager,Nothing}=nothing)
-    return RDateRange(from, nothing, period, inc_from, inc_to, cal_mgr !== nothing ? cal_mgr : calendar_mgr)
+    return RDateRange(from, nothing, period, inc_from, inc_to, cal_mgr !== nothing ? cal_mgr : NullCalendarManager())
 end
 
 function Base.range(from::Dates.Date, to::Dates.Date, period::RDate; inc_from::Bool=true, inc_to::Bool=true, cal_mgr::Union{CalendarManager,Nothing}=nothing)
-    return RDateRange(from, to, period, inc_from, inc_to, cal_mgr !== nothing ? cal_mgr : calendar_mgr)
+    return RDateRange(from, to, period, inc_from, inc_to, cal_mgr !== nothing ? cal_mgr : NullCalendarManager())
 end

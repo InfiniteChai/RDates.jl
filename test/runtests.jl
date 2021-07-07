@@ -5,22 +5,19 @@ using ParserCombinator
 
 @testset "rdate calendar adjustments" begin
     cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
-    with_cal_mgr(cal_mgr) do
-        @test RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()) + Date(2019,4,16) == Date(2019,4,17)
-        @test RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()) + Date(2019,9,27) == Date(2019,9,30)
-        @test RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()) + Date(2019,11,29) == Date(2019,12,2)
-        @test RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBDSM()) + Date(2019,11,29) == Date(2019,11,29)
-    end
+    @test apply(RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()), Date(2019,4,16), cal_mgr) == Date(2019,4,17)
+    @test apply(RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()), Date(2019,9,27), cal_mgr) == Date(2019,9,30)
+    @test apply(RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()), Date(2019,11,29), cal_mgr) == Date(2019,12,2)
+    @test apply(RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBDSM()), Date(2019,11,29), cal_mgr) == Date(2019,11,29)
 end
 
 @testset "rdate business days" begin
     cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
-    with_cal_mgr(cal_mgr) do
-        @test rd"0b@WEEKEND" + Date(2019,9,28) == Date(2019,9,30)
-        @test rd"-0b@WEEKEND" + Date(2019,9,28) == Date(2019,9,27)
-        @test rd"1b@WEEKEND" + Date(2019,9,28) == Date(2019,9,30)
-        @test rd"2b@WEEKEND" + Date(2019,9,28) == Date(2019,10,1)
-    end
+    @test apply(rd"0b@WEEKEND", Date(2019,9,28), cal_mgr) == Date(2019,9,30)
+    @test apply(rd"-0b@WEEKEND", Date(2019,9,28), cal_mgr) == Date(2019,9,27)
+    @test apply(rd"1b@WEEKEND", Date(2019,9,28), cal_mgr) == Date(2019,10,1)
+    @test apply(rd"-1b@WEEKEND", Date(2019,9,28), cal_mgr) == Date(2019,9,26)
+    @test apply(rd"2b@WEEKEND", Date(2019,9,28), cal_mgr) == Date(2019,10,2)
 end
 
 @testset "rdate add ordering" begin
@@ -53,9 +50,7 @@ end
 
     # PDOMEOM can also support calendars to work off the last business day of the month
     cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
-    with_cal_mgr(cal_mgr) do
-        @test rd"3m[LDOM;PDOMEOM@WEEKEND]" + Date(2019,8,30) == Date(2019,11,29)
-    end
+    @test apply(rd"3m[LDOM;PDOMEOM@WEEKEND]", Date(2019,8,30), cal_mgr) == Date(2019,11,29)
 end
 
 @testset "rdate whitespace" begin
@@ -150,10 +145,8 @@ end
 
     # FDOM and LDOM can support calendars as well.
     cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
-    with_cal_mgr(cal_mgr) do
-        @test rd"FDOM@WEEKEND" + Date(2019,9,25) == Date(2019,9,2)
-        @test rd"LDOM@WEEKEND" + Date(2019,8,25) == Date(2019,8,30)
-    end
+    @test apply(rd"FDOM@WEEKEND", Date(2019,9,25), cal_mgr) == Date(2019,9,2)
+    @test apply(rd"LDOM@WEEKEND", Date(2019,8,25), cal_mgr) == Date(2019,8,30)
 end
 
 @testset "basic addition and multiplication compounds" begin
@@ -192,6 +185,7 @@ end
 @testset "rdate parsing methods" begin
     @test rdate("1d") == rd"1d"
     @test rdate("3*2d") == rd"3*2d"
+    @test rd"3*2d" == 3*rd"2d"
 end
 
 @testset "fail to parse bad rdates" begin
@@ -207,5 +201,6 @@ end
     @test string(rd"3d + 2w") == "17d"
     @test string(rd"2*(1m + 1y)") == "2m[LDOM;PDOM]+2y[LDOM;PDOM]"
     @test string(rd"2*roll(1m)") == "2*roll(1m[LDOM;PDOM])"
-    @test string(rd"1m[LDOM;PDOMEOM@A]@B[NBD]") == "1m[LDOM;PDOMEOM@A]@B[NBD]"
+    @test string(rd"1m[LDOM;PDOMEOM@A]@B[NBD]") == "(1m[LDOM;PDOMEOM@A])@B[NBD]"
+    @test string(rd"(1m+2d)@A[PBD]") == "(1m[LDOM;PDOM]+2d)@A[PBD]"
 end

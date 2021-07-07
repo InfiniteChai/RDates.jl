@@ -1,5 +1,10 @@
 using AutoHashEquals
 
+"""
+    RDateCompound <: RDate
+
+Apply a list of rdates in order
+"""
 @auto_hash_equals struct RDateCompound <: RDate
     parts::Vector{RDate}
 end
@@ -17,9 +22,19 @@ function Base.show(io::IO, rdate::RDateCompound)
     end
 end
 
+"""
+    RDateRepeat <: RDate
+
+Repeat the application of an rdate n times.
+"""
 @auto_hash_equals struct RDateRepeat <: RDate
     count::Int64
     part::RDate
+
+    function RDateRepeat(count::Int64, part::RDate)
+        count > 0 || error("RDateRepeat must use a positive count, not $count")
+        new(count, part)
+    end
 end
 
 apply(rdate::RDateRepeat, date::Dates.Date, cal_mgr::CalendarManager) = Base.foldl((x,y) -> apply(y, x, cal_mgr), fill(rdate.part, rdate.count), init=date)
@@ -31,6 +46,11 @@ Base.:+(left::RDate, right::RDate) = combine(left, right)
 Base.:-(left::RDate, right::RDate) = combine(left, -right)
 multiply_roll(rdate::RDate, count::Integer) = count >= 0 ? RDateRepeat(count, rdate) : RDateRepeat(-count, -rdate)
 
+"""
+    CalendarAdj <: RDate
+
+Apply a calendar adjustment to an underlying rdate.
+"""
 @auto_hash_equals struct CalendarAdj{R <: RDate, S <: HolidayRoundingConvention} <: RDate
     calendar_names::Vector{String}
     part::R
@@ -45,5 +65,7 @@ function apply(rdate::CalendarAdj, date::Dates.Date, cal_mgr::CalendarManager)
     apply(rdate.rounding, base_date, cal)
 end
 multiply_no_roll(rdate::CalendarAdj, count::Integer) = CalendarAdj(rdate.calendar_names, multiply_no_roll(rdate.part, count), rdate.rounding)
+Base.:*(rdate::RDate, count::Integer) = multiply_no_roll(rdate, count)
+Base.:*(count::Integer, rdate::RDate) = multiply_no_roll(rdate, count)
 Base.:-(x::CalendarAdj) = CalendarAdj(x.calendar_names, -x.part, x.rounding)
-Base.show(io::IO, rdate::CalendarAdj) = print(io, "$(rdate.part)@$(join(rdate.calendar_names, "|"))[$(rdate.rounding)]")
+Base.show(io::IO, rdate::CalendarAdj) = print(io, "($(rdate.part))@$(join(rdate.calendar_names, "|"))[$(rdate.rounding)]")

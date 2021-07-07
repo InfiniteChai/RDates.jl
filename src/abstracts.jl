@@ -52,25 +52,12 @@ and invalid day conventions will kick in.
 """
 multiply_no_roll(rd::RDate, count::Integer) = error("$(typeof(rd)) does not support no roll multiplication")
 
-calendar_mgr = NullCalendarManager()
-function with_cal_mgr(f::Function, cal_mgr::CalendarManager)
-    global calendar_mgr
-    current_cal_mgr = calendar_mgr
-    calendar_mgr = cal_mgr
-    try
-        f()
-    finally
-        calendar_mgr = current_cal_mgr
-    end
-end
-
 """
     apply(rdate::RDate, date::Dates.Date)::Dates.Date
 
 The application of an rdate to a specific date, without an explicit calendar manager.
-This will use the globally specified calendar manager defined at the point of request.
 """
-apply(rd::RDate, date::Dates.Date) = apply(rd, date, calendar_mgr)
+apply(rd::RDate, date::Dates.Date) = apply(rd, date, NullCalendarManager())
 Base.:+(rd::RDate, date::Dates.Date) = apply(rd, date)
 Base.:+(date::Dates.Date, rd::RDate) = apply(rd, date)
 Base.:-(date::Dates.Date, rd::RDate) = apply(-rd, date)

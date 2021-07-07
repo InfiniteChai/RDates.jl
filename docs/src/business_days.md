@@ -29,12 +29,11 @@ julia> is_holiday(calendar(cal_mgr, ["WEEKEND"]), Date(2019,9,28))
 true
 ```
 
-You can either pass the calendar manager as an optional argument to `apply` or use the `with_cal_mgr` do block
+You can pass the calendar manager as an optional argument to `apply`
 
 ```julia
-with_cal_mgr(cal_mgr) do
-  rd"1b@WEEKEND" + Date(2019,1,1)
-end
+julia> apply(rd"1b@WEEKEND", Date(2019,1,1), cal_mgr)
+2019-01-02
 ```
 
 ## Calendar Adjustments
@@ -54,14 +53,16 @@ The holiday rounding convention provides the details on what to do if we fall on
 An adjustment is specified using the `@` symbol, followed by a `|` delimited set of calendar names. The holiday rounding convention is then provided in its short form in square brackets afterwards.
 
 ```julia
-cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-cal_mgr = RDates.SimpleCalendarManager(cals)
-with_cal_mgr(cal_mgr) do
-  rd"1d" + Date(2019,9,27) == Date(2019,9,28)
-  rd"1d@WEEKEND[NBD]" + Date(2019,9,27) == Date(2019,9,30)
-  rd"2m - 1d" + Date(2019,7,23) == Date(2019,9,22)
-  rd"(2m - 1d)@WEEKEND[PBD]" + Date(2019,7,23) == Date(2019,9,20)
-end
+julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
+julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> apply(rd"1d", Date(2019,9,27), cal_mgr)
+2019-09-28
+julia> apply(rd"1d@WEEKEND[NBD]", Date(2019,9,27), cal_mgr)
+2019-09-30
+julia> apply(rd"2m - 1d", Date(2019,7,23), cal_mgr)
+2019-09-22
+julia> apply(rd"(2m - 1d)@WEEKEND[PBD]", Date(2019,7,23), cal_mgr)
+2019-09-20
 ```
 
 ## Business Days
@@ -72,11 +73,12 @@ It can also be handy to work in business days at times, rather than calendar day
     For the zero increment operator `0b@CALENDAR` we select *Next Business Day*. However it's negation with `-0b@CALENDAR` will switch to *Previous Business Day*.
 
     ```julia
-    cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-    cal_mgr = RDates.SimpleCalendarManager(cals)
-    with_cal_mgr(cal_mgr) do
-      rd"0b@WEEKEND" + Date(2019,9,28) == Date(2019,9,30)
-      rd"-0b@WEEKEND" + Date(2019,9,28) == Date(2019,9,27)
-      rd"10b@WEEKEND" + Date(2019,9,27) == Date(2019,10,11)    
-    end
+    julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
+    julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+    julia> apply(rd"0b@WEEKEND", Date(2019,9,28), cal_mgr)
+    2019-09-30
+    julia> apply(rd"-0b@WEEKEND", Date(2019,9,28), cal_mgr)
+    2019-09-27
+    julia> apply(rd"10b@WEEKEND", Date(2019,9,27), cal_mgr)
+    2019-10-11
     ```
