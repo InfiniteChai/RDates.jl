@@ -34,7 +34,7 @@ end
 
 function is_holiday(cal::JointCalendar, date::Dates.Date)
     foldl(
-        (acc, val) -> acc && is_holiday(val, date),
+        (acc, val) -> acc || is_holiday(val, date),
         cal.calendars;
         init = false,
     )
