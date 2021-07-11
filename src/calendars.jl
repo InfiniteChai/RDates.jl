@@ -28,7 +28,7 @@ for any of the underlying calendars.
 
 By default addition of calendars will generate a joint calendar for you.
 """
-struct JointCalendar{T} <: Calendar
+struct JointCalendar <: Calendar
     calendars::Vector{Calendar}
 end
 
