@@ -3,6 +3,31 @@ using RDates
 using Dates
 using ParserCombinator
 
+cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
+
+@testset "RDates" begin
+    @testset "Rounding Conventions" begin
+        @test apply(rd"0d@WEEKEND[NBD]", Date(2021,7,10), cal_mgr) == Date(2021,7,12)
+        @test apply(rd"0d@WEEKEND[NBD]", Date(2021,7,11), cal_mgr) == Date(2021,7,12)
+        @test apply(rd"0d@WEEKEND[NBDSM]", Date(2021,7,10), cal_mgr) == Date(2021,7,12)
+        @test apply(rd"0d@WEEKEND[NBDSM]", Date(2021,7,11), cal_mgr) == Date(2021,7,12)
+        @test apply(rd"0d@WEEKEND[PBD]", Date(2021,7,10), cal_mgr) == Date(2021,7,9)
+        @test apply(rd"0d@WEEKEND[PBD]", Date(2021,7,11), cal_mgr) == Date(2021,7,9)
+        @test apply(rd"0d@WEEKEND[PBDSM]", Date(2021,7,10), cal_mgr) == Date(2021,7,9)
+        @test apply(rd"0d@WEEKEND[PBDSM]", Date(2021,7,11), cal_mgr) == Date(2021,7,9)
+        @test apply(rd"0d@WEEKEND[NR]", Date(2021,7,10), cal_mgr) == Date(2021,7,10)
+        @test apply(rd"0d@WEEKEND[NR]", Date(2021,7,11), cal_mgr) == Date(2021,7,11)
+        @test apply(rd"0d@WEEKEND[NEAR]", Date(2021,7,10), cal_mgr) == Date(2021,7,9)
+        @test apply(rd"0d@WEEKEND[NEAR]", Date(2021,7,11), cal_mgr) == Date(2021,7,12)
+        # same month special casing
+        @test apply(rd"0d@WEEKEND[NBDSM]", Date(2021,7,31), cal_mgr) == Date(2021,7,30)
+        @test apply(rd"0d@WEEKEND[NBDSM]", Date(2021,8,1), cal_mgr) == Date(2021,8,2)
+        @test apply(rd"0d@WEEKEND[PBDSM]", Date(2021,7,31), cal_mgr) == Date(2021,7,30)
+        @test apply(rd"0d@WEEKEND[PBDSM]", Date(2021,8,1), cal_mgr) == Date(2021,8,2)
+
+    end
+end
+
 @testset "rdate calendar adjustments" begin
     cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
     @test apply(RDates.CalendarAdj(["WEEKEND"], rd"1d", RDates.HolidayRoundingNBD()), Date(2019,4,16), cal_mgr) == Date(2019,4,17)
