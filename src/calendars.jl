@@ -57,6 +57,7 @@ and will generate a joint calendar if multiple names are requested.
 struct SimpleCalendarManager <: CalendarManager
     calendars::Dict{String,Calendar}
 end
+Base.show(io::IO, mgr::SimpleCalendarManager) = (print(io, "RDates.SimpleCalendarManager($(length(mgr.calendars)) calendars)"))
 
 function calendar(cal_mgr::SimpleCalendarManager, names)::Calendar
     if length(names) == 0
