@@ -414,7 +414,7 @@ end
 
 function multiply_no_roll(x::BizDays, count::Integer)
     x = count < 0 ? -x : x
-    return BizDays(x.count * abs(count), x.calendar_names, x.rounding)
+    return BizDays(x.days * abs(count), x.calendar_names, x.rounding)
 end
 
 Base.:-(x::BizDays) = BizDays(-x.days, x.calendar_names)
