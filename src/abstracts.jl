@@ -5,9 +5,30 @@ using Compat
 # Calendars
 @compat abstract type CalendarManager end
 @compat abstract type Calendar end
-# Conventions
+
+"""
+    HolidayRoundingConvention
+
+The convention used in conjunction with holiday calendars to determine what
+to do if an adjustments falls on a holiday.
+"""
 @compat abstract type HolidayRoundingConvention end
+
+"""
+    InvalidDayConvention
+
+The convention used for handling month or year increments which fall on a day
+which is not valid.
+"""
 @compat abstract type InvalidDayConvention end
+
+"""
+    MonthIncrementConvention
+
+The convention used for handling month or year increments and how they should
+be applied. Should handle invalid days explicitly, as these wil be handled
+separately by the InvalidDayConvention
+"""
 @compat abstract type MonthIncrementConvention end
 
 """

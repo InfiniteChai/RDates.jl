@@ -20,7 +20,7 @@ PPosZeroInt64() = Parse(p"[0-9][0-9]*", Int64)
 
     neg = Delayed()
     neg.matcher = rdate_expr | (E"-" + neg > -)
-    cal_adj = neg + (E"@" + p"[a-zA-Z-\/\s|]+" + E"[" + Alt(map(Pattern, collect(keys(HOLIDAY_ROUNDING_MAPPINGS)))...) + E"]")[0:1] |> xs -> length(xs) == 1 ? xs[1] : CalendarAdj(map(String, split(xs[2], "|")), xs[1], HOLIDAY_ROUNDING_MAPPINGS[xs[3]])
+    cal_adj = neg + (E"@" + p"[a-zA-Z0-9-\/\s|]+" + E"[" + Alt(map(Pattern, collect(keys(HOLIDAY_ROUNDING_MAPPINGS)))...) + E"]")[0:1] |> xs -> length(xs) == 1 ? xs[1] : CalendarAdj(map(String, split(xs[2], "|")), xs[1], HOLIDAY_ROUNDING_MAPPINGS[xs[3]])
 
     # Our decision on the grammar choice for rdates is purely one of choice.
     # * will imply 'no roll', so 2*1m == 2m

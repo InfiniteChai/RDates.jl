@@ -96,6 +96,18 @@ julia> rd"LDOM" + Date(2019,1,13)
 2019-01-31
 ```
 
+These can also handle calendars as well (so you can get the last business day of the month).
+We'll cover calendars more specifically in the **Business Days** section.
+
+```julia
+julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
+julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> apply(rd"FDOM@WEEKEND", Date(2017,1,13), cal_mgr)
+2017-01-02
+julia> apply(rd"LDOM@WEEKEND", Date(2021,1,13), cal_mgr)
+2021-01-29
+```
+
 ## Easter
 A date that is well known from hunting eggs and pictures of bunnies, it's a rather tricky calculation to perform. We provide a simple method to allow you to get the Easter for the given year (or appropriately incremented or decremented from the given year)
 

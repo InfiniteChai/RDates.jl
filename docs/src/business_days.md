@@ -49,8 +49,13 @@ The holiday rounding convention provides the details on what to do if we fall on
 - **Previous Business Day** or **PBD** means to move bacwards to the last day that was not a holiday.
 - **Next Business Day Same Month** or **NBDSM** means to apply *Next Business Day* unless the day found is not in the same month as where we started, then instead apply *Previous Business Day*.
 - **Previous Business Day Same Month** or **PBDSM** means to apply *Previous Business Day* unless the day found is not in the same month as where we started, then instead apply *Next Business Day*.
+- **No Rounding** or **NR** means to apply *No Rounding* and give back the date provided.
+- **Nearest** or **NEAR** means to move towards the nearest business day, with the next one
+winning in a tie. This is commonly used for US bank holidays.
 
 An adjustment is specified using the `@` symbol, followed by a `|` delimited set of calendar names. The holiday rounding convention is then provided in its short form in square brackets afterwards.
+
+All calendar names must only contain characters `a-z`, `A-Z`, `0-9`, `-`, ` ` or `/`.
 
 ```julia
 julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())

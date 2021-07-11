@@ -34,7 +34,7 @@ Base.:-(x::FDOM) = x
 
 Base.show(io::IO, rdate::FDOM) = print(io, rdate.calendars === nothing ? "FDOM" : "FDOM@$(join(rdate.calendars, "|"))")
 register_grammar!(E"FDOM" > FDOM)
-register_grammar!(E"FDOM@" + p"[a-zA-Z-\/\s|]+" > calendar_name -> FDOM(map(String, split(calendar_name, "|"))))
+register_grammar!(E"FDOM@" + p"[a-zA-Z0-9-\/\s|]+" > calendar_name -> FDOM(map(String, split(calendar_name, "|"))))
 
 """
     LDOM <: RDate
@@ -63,7 +63,7 @@ Base.:-(x::LDOM) = x
 
 Base.show(io::IO, rdate::LDOM) = print(io, rdate.calendars === nothing ? "LDOM" : "LDOM@$(join(rdate.calendars, "|"))")
 register_grammar!(E"LDOM" > LDOM)
-register_grammar!(E"LDOM@" + p"[a-zA-Z-\/\s|]+" > calendar_name -> LDOM(map(String, split(calendar_name, "|"))))
+register_grammar!(E"LDOM@" + p"[a-zA-Z0-9-\/\s|]+" > calendar_name -> LDOM(map(String, split(calendar_name, "|"))))
 
 """
     Easter <: RDate
@@ -169,7 +169,7 @@ Base.show(io::IO, rdate::Month) = (print(io, "$(rdate.months)m["), show(io, rdat
 register_grammar!(PInt64() + E"m" > Month)
 register_grammar!(PInt64() + E"m[" + Alt(map(Pattern, collect(keys(INVALID_DAY_MAPPINGS)))...) + E";" + Alt(map(Pattern, collect(keys(MONTH_INCREMENT_MAPPINGS)))...) + E"]" > (d,idc,mic) -> Month(d, INVALID_DAY_MAPPINGS[idc], MONTH_INCREMENT_MAPPINGS[mic]))
 # We also have the more complex PDOMEOM month increment which we handle separately.
-register_grammar!(PInt64() + E"m[" + Alt(map(Pattern, collect(keys(INVALID_DAY_MAPPINGS)))...) + E";PDOMEOM@" + p"[a-zA-Z-\/\s|]+" + E"]" > (d,idc,calendar_name) -> Month(d, INVALID_DAY_MAPPINGS[idc], MonthIncrementPDOMEOM(map(String, split(calendar_name, "|")))))
+register_grammar!(PInt64() + E"m[" + Alt(map(Pattern, collect(keys(INVALID_DAY_MAPPINGS)))...) + E";PDOMEOM@" + p"[a-zA-Z0-9-\/\s|]+" + E"]" > (d,idc,calendar_name) -> Month(d, INVALID_DAY_MAPPINGS[idc], MonthIncrementPDOMEOM(map(String, split(calendar_name, "|")))))
 
 """
     Year <: RDate
@@ -203,7 +203,7 @@ Base.show(io::IO, rdate::Year) = (print(io, "$(rdate.years)y["), show(io, rdate.
 register_grammar!(PInt64() + E"y" > Year)
 register_grammar!(PInt64() + E"y[" + Alt(map(Pattern, collect(keys(INVALID_DAY_MAPPINGS)))...) + E";" + Alt(map(Pattern, collect(keys(MONTH_INCREMENT_MAPPINGS)))...) + E"]" > (d,idc,mic) -> Year(d, INVALID_DAY_MAPPINGS[idc], MONTH_INCREMENT_MAPPINGS[mic]))
 # We also have the more complex PDOMEOM month increment which we handle separately.
-register_grammar!(PInt64() + E"y[" + Alt(map(Pattern, collect(keys(INVALID_DAY_MAPPINGS)))...) + E";PDOMEOM@" + p"[a-zA-Z-\/\s|]+" + E"]" > (d,idc,calendar_name) -> Year(d, INVALID_DAY_MAPPINGS[idc], MonthIncrementPDOMEOM(map(String, split(calendar_name, "|")))))
+register_grammar!(PInt64() + E"y[" + Alt(map(Pattern, collect(keys(INVALID_DAY_MAPPINGS)))...) + E";PDOMEOM@" + p"[a-zA-Z0-9-\/\s|]+" + E"]" > (d,idc,calendar_name) -> Year(d, INVALID_DAY_MAPPINGS[idc], MonthIncrementPDOMEOM(map(String, split(calendar_name, "|")))))
 
 """
     DayMonth <: RDate
@@ -419,4 +419,4 @@ function multiply_no_roll(x::BizDays, count::Integer)
 end
 
 Base.:-(x::BizDays) = BizDays(-x.days, x.calendar_names)
-register_grammar!(PPosZeroInt64() + E"b@" + p"[a-zA-Z-\/\s|]+" > (days,calendar_name) -> BizDays(days, map(String, split(calendar_name, "|"))))
+register_grammar!(PPosZeroInt64() + E"b@" + p"[a-zA-Z0-9-\/\s|]+" > (days,calendar_name) -> BizDays(days, map(String, split(calendar_name, "|"))))
