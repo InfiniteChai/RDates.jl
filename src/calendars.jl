@@ -1,7 +1,7 @@
 import Dates
 
 """
-    NullCalendar() <: Calendar
+    NullCalendar()
 
 A holiday calendar for which there is never a holiday. *sigh*
 """
@@ -10,7 +10,7 @@ struct NullCalendar <: Calendar end
 is_holiday(::NullCalendar, ::Dates.Date) = false
 
 """
-    WeekendCalendar() <: Calendar
+    WeekendCalendar()
 
 A calendar which will mark every Saturday and Sunday as a holiday
 """
@@ -49,10 +49,18 @@ Base.:+(cal1::JointCalendar, cal2::JointCalendar) =
     JointCalendar(vcat(cal1.calendars, cal2.calendars))
 
 """
-    SimpleCalendarManager(calendars::Dict{String, Calendar}) <: Calendar
+    SimpleCalendarManager(calendars::Dict{String, Calendar})
 
 A basic calendar manager which just holds a reference to each underlying calendar, by name,
 and will generate a joint calendar if multiple names are requested.
+
+### Examples
+```julia-repl
+julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
+julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> is_holiday(calendar(cal_mgr, ["WEEKEND"]), Date(2019,9,28))
+true
+```
 """
 struct SimpleCalendarManager <: CalendarManager
     calendars::Dict{String,Calendar}
@@ -81,10 +89,10 @@ mechanism can be used to mark the minimal set of calendars on which adjustments 
 """
 get_calendar_names(::RDate) = Vector{String}()
 get_calendar_names(rdate::Union{BizDays,CalendarAdj}) = rdate.calendar_names
-get_calendar_names(rdate::RDateCompound) = Base.foldl((val, acc) -> vcat(
+get_calendar_names(rdate::Compound) = Base.foldl((val, acc) -> vcat(
         acc,
         get_calendar_names(val),
         rdate.parts,
         init = Vector{String}(),
     ))
-get_calendar_names(rdate::RDateRepeat) = get_calendar_names(rdate.part)
+get_calendar_names(rdate::Repeat) = get_calendar_names(rdate.part)

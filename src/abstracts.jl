@@ -32,7 +32,7 @@ separately by the InvalidDayConvention
 @compat abstract type MonthIncrementConvention end
 
 """
-    NullCalendarManager() <: CalendarManager
+    NullCalendarManager()
 
 The most primitive calendar manager, that will return an error for any request to
 get a calendar. The default calendar manager that is available when applying rdates
@@ -59,24 +59,35 @@ calendar(x::CalendarManager, names)::Calendar = error("$(typeof(x)) does not sup
     apply(rdate::RDate, date::Dates.Date, calendarmgr::CalendarManager)::Dates.Date
 
 The application of an rdate to a specific date, given an explicit calendar manager.
+
+### Examples
+```jula-repl
+julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
+julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> apply(rd"1b@WEEKEND", Date(2021,7,9), cal_mgr)
+2021-07-12
+```
 """
 apply(rd::RDate, ::Dates.Date, ::CalendarManager)::Dates.Date = error("$(typeof(rd)) does not support date apply")
 
 """
-    multiply_no_roll(rdate::RDate, count::Integer)::RDate
+    multiply(rdate::RDate, count::Integer)::RDate
 
 An internalised multiplication of an rdate which is generated without reapplication of a relative date multiple
-times. This differs from multiply_roll when either calendars or month adjustments are involved.
+times. To apply an rdate multiple times, then use a `Repeat`.
 
 For example "6m" + "6m" != "12m" for all dates, due to the fact that there are different days in each month
 and invalid day conventions will kick in.
 """
-multiply_no_roll(rd::RDate, count::Integer) = error("$(typeof(rd)) does not support no roll multiplication")
+multiply(rd::R, count::Integer) where {R<:RDate} = error("multiply not implemented by $R")
+Base.:*(rdate::RDate, count::Integer) = multiply(rdate, count)
+Base.:*(count::Integer, rdate::RDate) = multiply(rdate, count)
 
 """
     apply(rdate::RDate, date::Dates.Date)::Dates.Date
 
-The application of an rdate to a specific date, without an explicit calendar manager.
+The application of an rdate to a specific date, without an explicit calendar manager. This
+will use the `NullCalendarManager()`.
 """
 apply(rd::RDate, date::Dates.Date) = apply(rd, date, NullCalendarManager())
 Base.:+(rd::RDate, date::Dates.Date) = apply(rd, date)
@@ -87,8 +98,8 @@ Base.:-(x::RDate)::RDate = error("$(typeof(x)) does not support negation")
 """
     apply(rounding::HolidayRoundingConvention, date::Dates.Date, calendar::Calendar)::Dates.Date
 
-Apply the appropriate adjustment to the date if it falls on a holiday for the given calendar. Be aware
-that there is no strict requirement that the resolved date will not be a holiday for the given calendar.
+Apply the holiday rounding to a given date. There is no strict requirement that the resolved date
+will not be a holiday for the given date.
 """
 apply(x::HolidayRoundingConvention, date::Dates.Date, calendar::Calendar) = error("$(typeof(x)) does not support apply")
 

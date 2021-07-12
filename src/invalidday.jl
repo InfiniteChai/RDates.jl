@@ -1,7 +1,7 @@
 import Dates
 
 """
-    InvalidDayLDOM <: InvalidDayConvention
+    InvalidDayLDOM()
 
 When the day calculated is invalid, move to the last day of the month. Will
 use the "LDOM" short hand.
@@ -11,7 +11,7 @@ adjust(::InvalidDayLDOM, day, month, year) = Dates.Date(year, month, Dates.daysi
 Base.show(io::IO, ::InvalidDayLDOM) = print(io, "LDOM")
 
 """
-    InvalidDayFDONM <: InvalidDayConvention
+    InvalidDayFDONM()
 
 When the day calculated is invalid, move to the first day of the next month.
 Uses the "FDONM" short hand.
@@ -21,7 +21,7 @@ adjust(::InvalidDayFDONM, day, month, year) = month == 12 ? Dates.Date(year+1, 1
 Base.show(io::IO, ::InvalidDayFDONM) = print(io, "FDONM")
 
 """
-    InvalidDayNDONM <: InvalidDayConvention
+    InvalidDayNDONM()
 
 When the day calculated is invalid, move to the nth day of the next month where
 n is the number of days past the last day of the month. Uses the "NDONM" short

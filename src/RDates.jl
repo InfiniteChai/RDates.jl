@@ -22,6 +22,7 @@ export is_holiday
 export calendar
 export apply
 export with_cal_mgr
+export FDOM, LDOM
 
 include("build.jl")
 

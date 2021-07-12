@@ -9,6 +9,34 @@ cal_mgr.calendars["WEEK-END"] = cal_mgr.calendars["WEEKEND"]
 cal_mgr.calendars["WEEK END"] = cal_mgr.calendars["WEEKEND"]
 
 @testset "RDates" verbose=true begin
+    @testset "Next and Previous" begin
+        @test rd"Next(0E, 1E)" + Date(2021,1,1) == Date(2021,4,4)
+        @test rd"Next(0E, 1E)" + Date(2021,4,3) == Date(2021,4,4)
+        @test rd"Next(0E, 1E)" + Date(2021,4,4) == Date(2022,4,17)
+        @test rd"Next!(0E, 1E)" + Date(2021,4,4) == Date(2021,4,4)
+        @test rd"Next!(0E, 1E)" + Date(2021,4,5) == Date(2022,4,17)
+        @test rd"Next(0E, -1E)" + Date(2021,1,1) == Date(2021,4,4)
+        @test_throws ErrorException rd"Next(0E, -1E)" + Date(2021,12,31)
+
+        @test rd"Previous(0E, -1E)" + Date(2021,1,1) == Date(2020,4,12)
+        @test rd"Previous(0E, -1E)" + Date(2020,4,13) == Date(2020,4,12)
+        @test rd"Previous(0E, -1E)" + Date(2020,4,12) == Date(2019,4,21)
+        @test rd"Previous!(0E, -1E)" + Date(2020,4,12) == Date(2020,4,12)
+        @test rd"Previous!(0E, -1E)" + Date(2020,4,11) == Date(2019,4,21)
+        @test rd"Previous(0E, 1E)" + Date(2021,12,31) == Date(2021,4,4)
+        @test_throws ErrorException rd"Previous(0E, 1E)" + Date(2021,1,1)
+
+        @test -rd"Next(1d)" == rd"Previous(-1d)"
+        @test rd"-Next(1d)" == rd"Previous(-1d)"
+        @test -2*rd"Next(1d)" == rd"Previous(-2d)"
+        @test rd"-2*Next(1d)" == rd"Previous(-2d)"
+
+        @test -rd"Previous(-1d)" == rd"Next(1d)"
+        @test rd"-Previous(-1d)" == rd"Next(1d)"
+        @test -2*rd"Previous(-1d)" == rd"Next(2d)"
+        @test rd"-2*Previous(-1d)" == rd"Next(2d)"
+    end
+
     @testset "Rounding Conventions" begin
         @test apply(rd"0d@WEEKEND[NBD]", Date(2021,7,10), cal_mgr) == Date(2021,7,12)
         @test apply(rd"0d@WEEKEND[NBD]", Date(2021,7,11), cal_mgr) == Date(2021,7,12)
@@ -60,7 +88,7 @@ cal_mgr.calendars["WEEK END"] = cal_mgr.calendars["WEEKEND"]
         @test rd"1d" + Date(2019,4,16) == Date(2019,4,17)
         @test Date(2019,4,16) + rd"1d" == Date(2019,4,17)
         @test rd"1d+2d" == rd"1d" + rd"2d"
-        @test rd"3*1d" == RDates.multiply_roll(rd"1d",3)
+        @test rd"3*1d" == rd"3d"
     end
 
     @testset "Month and Year Conventions" begin
@@ -194,13 +222,13 @@ cal_mgr.calendars["WEEK END"] = cal_mgr.calendars["WEEKEND"]
         @test rd"2*(3d+1d)" + Date(2019,4,16) == Date(2019,4,24)
         @test rd"2d-1E" + Date(2019,4,16) == Date(2018,4,1)
         @test rd"1d" - rd"2*1d" + Date(2019,5,1) == Date(2019,4,30)
-        @test RDates.multiply_no_roll(rd"1d", 3) + Date(2017,4,14) == Date(2017,4,17)
+        @test RDates.multiply(rd"1d", 3) + Date(2017,4,14) == Date(2017,4,17)
     end
 
     @testset "Roll vs No-Roll Multiplication" begin
         # If we apply each 1m addition individually, then invalid days in Feb kicks in.
         @test rd"1m+1m" + Date(2019,1,31) == Date(2019,3,28)
-        @test rd"2*roll(1m)" + Date(2019,1,31) == Date(2019,3,28)
+        @test rd"2*Repeat(1m)" + Date(2019,1,31) == Date(2019,3,28)
         # Normal multiplication will embed this in the period instead.
         @test rd"2m" + Date(2019,1,31) == Date(2019,3,31)
         @test rd"2*1m" + Date(2019,1,31) == Date(2019,3,31)
@@ -234,7 +262,7 @@ cal_mgr.calendars["WEEK END"] = cal_mgr.calendars["WEEKEND"]
         @test string(rd"1d") == "1d"
         @test string(rd"3d + 2w") == "17d"
         @test string(rd"2*(1m + 1y)") == "2m[LDOM;PDOM]+2y[LDOM;PDOM]"
-        @test string(rd"2*roll(1m)") == "2*roll(1m[LDOM;PDOM])"
+        @test string(rd"2*Repeat(1m)") == "2*Repeat(1m[LDOM;PDOM])"
         @test string(rd"1m[LDOM;PDOMEOM@A]@B[NBD]") == "(1m[LDOM;PDOMEOM@A])@B[NBD]"
         @test string(rd"(1m+2d)@A[PBD]") == "(1m[LDOM;PDOM]+2d)@A[PBD]"
     end

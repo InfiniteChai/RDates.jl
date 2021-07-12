@@ -1,4 +1,4 @@
-using ParserCombinator
+import ParserCombinator: PInt64, Eos, set_fix, Drop, Star, Space, @with_pre, Parse, @p_str, Pattern, Alt, Delayed, parse_one, @E_str
 import Dates
 
 space = Drop(Star(Space()))
@@ -6,6 +6,7 @@ space = Drop(Star(Space()))
 PNonZeroInt64() = Parse(p"-?[1-9][0-9]*", Int64)
 PPosInt64() = Parse(p"[1-9][0-9]*", Int64)
 PPosZeroInt64() = Parse(p"[0-9][0-9]*", Int64)
+PCalendarNames() = p"[a-zA-Z0-9-\/\s|]+"
 
 @with_pre space begin
     sum = Delayed()
@@ -14,25 +15,27 @@ PPosZeroInt64() = Parse(p"[0-9][0-9]*", Int64)
     month_short = Alt(map(x -> Pattern(uppercase(x)), Dates.ENGLISH.months_abbr)...)
 
     brackets = E"(" + space + sum + space + E")"
-
+    repeat = E"Repeat(" + space + sum + space + E")" > rd -> Repeat(rd)
     rdate_term = Alt()
-    rdate_expr = rdate_term | brackets
+
+    next = E"Next(" + (space + sum) + (E"," + space + sum)[0:end] + space + E")" |> parts -> Next(parts)
+    next_inc = E"Next!(" + (space + sum) + (E"," + space + sum)[0:end] + space + E")" |> parts -> Next(parts, true)
+    previous = E"Previous(" + (space + sum) + (E"," + space + sum)[0:end] + space + E")" |> parts -> Previous(parts)
+    previous_inc = E"Previous!(" + (space + sum) + (E"," + space + sum)[0:end] + space + E")" |> parts -> Previous(parts, true)
+
+    rdate_expr = rdate_term | brackets | repeat | next | next_inc | previous | previous_inc
 
     neg = Delayed()
     neg.matcher = rdate_expr | (E"-" + neg > -)
-    cal_adj = neg + (E"@" + p"[a-zA-Z0-9-\/\s|]+" + E"[" + Alt(map(Pattern, collect(keys(HOLIDAY_ROUNDING_MAPPINGS)))...) + E"]")[0:1] |> xs -> length(xs) == 1 ? xs[1] : CalendarAdj(map(String, split(xs[2], "|")), xs[1], HOLIDAY_ROUNDING_MAPPINGS[xs[3]])
+    cal_adj = neg + (E"@" + PCalendarNames() + E"[" + Alt(map(Pattern, collect(keys(HOLIDAY_ROUNDING_MAPPINGS)))...) + E"]")[0:1] |> xs -> length(xs) == 1 ? xs[1] : CalendarAdj(map(String, split(xs[2], "|")), xs[1], HOLIDAY_ROUNDING_MAPPINGS[xs[3]])
 
-    # Our decision on the grammar choice for rdates is purely one of choice.
-    # * will imply 'no roll', so 2*1m == 2m
-    # *roll will imply 'roll', so 2*roll(1m) == 1m + 1m
-    mult_roll = cal_adj | ((PPosInt64() + space + E"*" + space + E"roll(" + space + sum + space + E")") > (c, rd) -> multiply_roll(rd, c)) | ((E"roll(" + space + sum + space + E")" + space + E"*" + space + PPosInt64()) > (rd, c) -> multiply_roll(rd, c))
 
-    mult_no_roll = Delayed()
-    mult_no_roll = mult_roll | ((PPosInt64() + space + E"*" + space + mult_roll) > (c,rd) -> multiply_no_roll(rd, c)) | ((mult_roll + space + E"*" + space + PPosInt64()) > (rd,c) -> multiply_no_roll(rd, c))
+    mult = Delayed()
+    mult = cal_adj | ((PPosInt64() + space + E"*" + space + cal_adj) > (c,rd) -> multiply(rd, c)) | ((cal_adj + space + E"*" + space + PPosInt64()) > (rd,c) -> multiply(rd, c))
 
-    add = E"+" + mult_no_roll
-    sub = E"-" + mult_no_roll > -
-    sum.matcher = (sub | mult_no_roll) + (add | mult_no_roll)[0:end] |> Base.sum
+    add = E"+" + mult
+    sub = E"-" + mult > -
+    sum.matcher = (sub | mult) + (add | mult)[0:end] |> Base.sum
 
     entry = sum + Eos()
 end

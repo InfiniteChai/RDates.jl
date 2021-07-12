@@ -10,6 +10,7 @@ makedocs(
     pages = [
         "Introduction" => "index.md",
         "Primitives" => "primitives.md",
+        "Months and Years" => "months_and_years.md",
         "Combinations" => "combinations.md",
         "Business Days" => "business_days.md",
         "Ranges" => "ranges.md"
@@ -17,5 +18,5 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/InfiniteChai/RDates.jl.git"    
+    repo = "github.com/InfiniteChai/RDates.jl.git"
 )
