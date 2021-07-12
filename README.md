@@ -4,7 +4,7 @@
 
 | **Documentation**                                                         | **Build Status**                                              |
 |:-------------------------------------------------------------------------:|:-------------------------------------------------------------:|
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-latest-img]][docs-latest-url] | [![][travis-img]][travis-url] [![][codecov-img]][codecov-url] |
 
 This is a project that builds around the [Dates](https://docs.julialang.org/en/v1/stdlib/Dates/) module to allow complex date operations.  
 
@@ -28,9 +28,8 @@ At this point you can now start using RDates in your current Julia session using
 julia> using RDates
 ```
 
-
-[docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://infinitechai.github.io/RDates.jl/dev
+[docs-latest-img]: https://img.shields.io/badge/docs-latest-blue.svg
+[docs-latest-url]: https://infinitechai.github.io/RDates.jl/latest
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://infinitechai.github.io/RDates.jl/stable
