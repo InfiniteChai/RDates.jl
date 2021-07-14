@@ -81,7 +81,7 @@ function is_holiday(cal::JointCalendar, date::Dates.Date)
     )
 end
 function holidays(cal::JointCalendar, from::Dates.Date, to::Dates.Date)
-    foldl((acc, val) -> union(acc, holidays(val, from, to)), cal.calendarsSet{Dates.Date}())
+    foldl((acc, val) -> union(acc, holidays(val, from, to)), cal.calendars; init=Set{Dates.Date}())
 end
 
 Base.:+(cal1::Calendar, cal2::Calendar) = JointCalendar([cal1, cal2])
