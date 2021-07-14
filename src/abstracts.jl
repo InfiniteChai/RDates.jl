@@ -73,7 +73,6 @@ bizdaycount(cal::Calendar, from::Dates.Date, to::Dates.Date) = 1 + (to-from).val
 
 """
     calendar(calendarmgr::CalendarManager, names::Vector)::Calendar
-    calendar(calendarmgr::CalendarManager, names::String)::Calendar
 
 Given a set of calendar names, request the calendar manager to retrieve the associated
 calendar that supports the union of them.

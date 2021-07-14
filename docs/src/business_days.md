@@ -42,7 +42,7 @@ To access calendars within the relative date library, we use a calendar manager.
 
 A calendar manager must inherit from `RDates.CalendarManager` and implement the following
 ```@docs
-RDates.calendar(cal_mgr::RDates.CalendarManager, names)
+calendar(::RDates.CalendarManager, ::Vector)
 ```
 
 RDates provides some primitive calendar manager implementations to get started with
