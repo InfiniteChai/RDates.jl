@@ -12,15 +12,16 @@ include("invalidday.jl")
 # The various basic implementations (along with shows and grammar registrations)
 include("primitives.jl")
 
-include("calendars.jl")
 include("ranges.jl")
+include("calendars.jl")
 # include("io.jl")
 # Export the macro and non-macro parsers.
 export @rd_str
 export rdate
-export is_holiday
+export is_holiday, holidays, holidaycount, bizdaycount
 export calendar
 export apply
-export with_cal_mgr
+export SimpleCalendarManager, setcalendar!, setcachedcalendar!
+export WeekendCalendar, CachedCalendar
 
 end # module RDates

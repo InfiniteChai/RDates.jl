@@ -48,12 +48,38 @@ Determine whether the date requested is a holiday for this calendar or not.
 is_holiday(x::Calendar, ::Dates.Date) = error("$(typeof(x)) does not support is_holiday")
 
 """
-    calendar(calendarmgr::CalendarManager, names::Vector{String})::Calendar
+    holidays(calendar::Calendar, from::Dates.Date, to::Dates.Date)::Set{Dates.Date}
+
+Get the set of all holidays in the calendar between two dates (inclusive)
+"""
+holidays(::C, ::Dates.Date, ::Dates.Date) where {C<:Calendar} = error("holidays not implemented by $C")
+
+
+"""
+    holidaycount(calendar::Calendar, from::Dates.Date, to::Dates.Date)::Int
+
+Get the number of holidays in the calendar between two dates (inclusive)
+"""
+holidaycount(cal::Calendar, from::Dates.Date, to::Dates.Date) = length(holidays(cal, from, to))
+
+
+"""
+    bizdaycount(calendar::Calendar, from::Dates.Date, to::Dates.Date)::Int
+
+Get the number of business days in the calendar between two dates (inclusive)
+"""
+bizdaycount(cal::Calendar, from::Dates.Date, to::Dates.Date) = 1 + (to-from).value - holidaycount(cal, from, to)
+
+
+"""
+    calendar(calendarmgr::CalendarManager, names::Vector)::Calendar
+    calendar(calendarmgr::CalendarManager, names::String)::Calendar
 
 Given a set of calendar names, request the calendar manager to retrieve the associated
 calendar that supports the union of them.
 """
-calendar(x::CalendarManager, names)::Calendar = error("$(typeof(x)) does not support calendar")
+calendar(x::CalendarManager, names::Vector)::Calendar = error("$(typeof(x)) does not support calendar")
+calendar(x::CalendarManager, name::String)::Calendar = calendar(x, split(name, "|"))
 
 """
     apply(rdate::RDate, date::Dates.Date, calendarmgr::CalendarManager)::Dates.Date
@@ -62,8 +88,8 @@ The application of an rdate to a specific date, given an explicit calendar manag
 
 ### Examples
 ```jula-repl
-julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> cal_mgr = SimpleCalendarManager()
+julia> setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
 julia> apply(rd"1b@WEEKEND", Date(2021,7,9), cal_mgr)
 2021-07-12
 ```

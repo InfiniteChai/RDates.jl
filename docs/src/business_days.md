@@ -18,6 +18,14 @@ A calendar defines whether a given day is a holiday. To implement a calendar you
 
 ```@docs
 RDates.is_holiday
+RDates.holidays
+```
+
+Calendars also come with a number of helpful wrapper methods
+
+```@docs
+RDates.holidaycount
+RDates.bizdaycount
 ```
 
 RDate provides some primitive calendar implementations to get started with
@@ -25,6 +33,7 @@ RDate provides some primitive calendar implementations to get started with
 RDates.NullCalendar
 RDates.WeekendCalendar
 RDates.JointCalendar
+RDates.CachedCalendar
 ```
 
 ## Calendar Manager

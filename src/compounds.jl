@@ -67,8 +67,8 @@ square brackets using its string-form name.
 
 ### Examples
 ```julia-repl
-julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> cal_mgr = SimpleCalendarManager()
+julia> setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
 julia> apply(rd"1d", Date(2019,9,27), cal_mgr)
 2019-09-28
 julia> apply(rd"1d@WEEKEND[NBD]", Date(2019,9,27), cal_mgr)

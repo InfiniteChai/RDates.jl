@@ -3,12 +3,27 @@ using RDates
 using Dates
 using ParserCombinator
 
-cal_mgr = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
-cal_mgr.calendars["WEEK/END"] = cal_mgr.calendars["WEEKEND"]
-cal_mgr.calendars["WEEK-END"] = cal_mgr.calendars["WEEKEND"]
-cal_mgr.calendars["WEEK END"] = cal_mgr.calendars["WEEKEND"]
+cal_mgr = SimpleCalendarManager()
+setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
+setcalendar!(cal_mgr, "WEEK/END", calendar(cal_mgr, "WEEKEND"))
+setcalendar!(cal_mgr, "WEEK-END", calendar(cal_mgr, "WEEKEND"))
+setcalendar!(cal_mgr, "WEEK END", calendar(cal_mgr, "WEEKEND"))
+setcachedcalendar!(cal_mgr, "CACHED WEEKEND", calendar(cal_mgr, "WEEKEND"))
 
 @testset "RDates" verbose=true begin
+    @testset "Calendar Holidays" begin
+        @test holidays(calendar(cal_mgr, "WEEKEND"), Date(2021,7,8), Date(2021,7,11)) == Set([Date(2021,7,10), Date(2021,7,11)])
+        @test holidays(calendar(cal_mgr, "WEEKEND"), Date(2021,7,8), Date(2021,7,9)) == Set()
+        @test holidaycount(calendar(cal_mgr, "WEEKEND"), Date(2021,7,4), Date(2021,7,20)) == 5
+        @test bizdaycount(calendar(cal_mgr, "WEEKEND"), Date(2021,7,4), Date(2021,7,20)) == 12
+
+
+        @test holidays(calendar(cal_mgr, "CACHED WEEKEND"), Date(2021,7,8), Date(2021,7,11)) == Set([Date(2021,7,10), Date(2021,7,11)])
+        @test holidays(calendar(cal_mgr, "CACHED WEEKEND"), Date(2021,7,8), Date(2021,7,9)) == Set()
+        @test holidaycount(calendar(cal_mgr, "CACHED WEEKEND"), Date(2021,7,4), Date(2021,7,20)) == 5
+        @test bizdaycount(calendar(cal_mgr, "CACHED WEEKEND"), Date(2021,7,4), Date(2021,7,20)) == 12
+    end
+
     @testset "Next and Previous" begin
         @test rd"Next(0E, 1E)" + Date(2021,1,1) == Date(2021,4,4)
         @test rd"Next(0E, 1E)" + Date(2021,4,3) == Date(2021,4,4)

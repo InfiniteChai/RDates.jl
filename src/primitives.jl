@@ -20,7 +20,9 @@ julia> RDates.FDOM() + Date(2019,1,13)
 2019-01-01
 julia> rd"FDOM" + Date(2019,1,13)
 2019-01-01
-julia> cals = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
+
+julia> cals = SimpleCalendarManager()
+julia> setcalendar!(cals, "WEEKEND", WeekendCalendar())
 julia> apply(RDates.FDOM("WEEKEND"), Date(2017,1,13), cals)
 2017-01-02
 julia> apply(rd"FDOM@WEEKEND", Date(2017,1,13), cals)
@@ -54,7 +56,8 @@ julia> RDates.LDOM() + Date(2019,1,13)
 2019-01-31
 julia> rd"LDOM" + Date(2019,1,13)
 2019-01-31
-julia> cals = RDates.SimpleCalendarManager(Dict("WEEKEND" => RDates.WeekendCalendar()))
+julia> cals = SimpleCalendarManager()
+julia> setcalendar!(cals, "WEEKEND", WeekendCalendar())
 julia> apply(RDates.LDOM("WEEKEND"), Date(2021,1,13), cals)
 2021-01-29
 julia> apply(rd"LDOM@WEEKEND", Date(2021,1,13), cals)
@@ -563,8 +566,8 @@ It can be handy to work in business days at times, rather than calendar days. Th
 allows us to move forwards or backwards `n` days.
 
 ```julia-repl
-julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> cal_mgr = SimpleCalendarManager()
+julia> setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
 julia> apply(RDates.BizDays(1, "WEEKEND"), Date(2021,7,9), cal_mgr)
 2021-07-12
 julia> apply(rd"1b@WEEKEND", Date(2021,7,9), cal_mgr)

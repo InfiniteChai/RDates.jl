@@ -7,8 +7,8 @@ Move to the next business day when a date falls on a holiday.
 
 #### Examples
 ```julia-repl
-julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> cal_mgr = SimpleCalendarManager()
+julia> setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
 julia> apply(RDates.CalendarAdj("WEEKEND", rd"0d", RDates.HolidayRoundingNBD()), Date(2021,7,10), cal_mgr)
 2021-07-12
 julia> apply(rd"0d@WEEKEND[NBD]", Date(2021,7,10), cal_mgr)
@@ -32,8 +32,8 @@ Move to the previous business day when a date falls on a holiday.
 
 #### Examples
 ```julia-repl
-julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> cal_mgr = SimpleCalendarManager()
+julia> setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
 julia> apply(RDates.CalendarAdj("WEEKEND", rd"0d", RDates.HolidayRoundingPBD()), Date(2021,7,10), cal_mgr)
 2021-07-09
 julia> apply(rd"0d@WEEKEND[PBD]", Date(2021,7,10), cal_mgr)
@@ -57,8 +57,8 @@ date would be in the next month, then go the previous business date instead.
 
 #### Examples
 ```julia-repl
-julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> cal_mgr = SimpleCalendarManager()
+julia> setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
 julia> apply(RDates.CalendarAdj("WEEKEND", rd"0d", RDates.HolidayRoundingNBDSM()), Date(2021,7,10), cal_mgr)
 2021-07-12
 julia> apply(rd"0d@WEEKEND[NBDSM]", Date(2021,7,10), cal_mgr)
@@ -94,8 +94,8 @@ date would be in the previous month, then go the next business date instead.
 
 #### Examples
 ```julia-repl
-julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> cal_mgr = SimpleCalendarManager()
+julia> setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
 julia> apply(RDates.CalendarAdj("WEEKEND", rd"0d", RDates.HolidayRoundingPBDSM()), Date(2021,7,10), cal_mgr)
 2021-07-09
 julia> apply(rd"0d@WEEKEND[PBDSM]", Date(2021,7,10), cal_mgr)
@@ -131,8 +131,8 @@ No rounding, so just give back the same date even though it's a holiday. Uses
 
 #### Examples
 ```julia-repl
-julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> cal_mgr = SimpleCalendarManager()
+julia> setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
 julia> apply(RDates.CalendarAdj("WEEKEND", rd"0d", RDates.HolidayRoundingNR()), Date(2021,7,10), cal_mgr)
 2021-07-10
 julia> apply(rd"0d@WEEKEND[NR]", Date(2021,7,10), cal_mgr)
@@ -154,8 +154,8 @@ for their fixed date holidays.
 
 #### Examples
 ```julia-repl
-julia> cals = Dict("WEEKEND" => RDates.WeekendCalendar())
-julia> cal_mgr = RDates.SimpleCalendarManager(cals)
+julia> cal_mgr = SimpleCalendarManager()
+julia> setcalendar!(cal_mgr, "WEEKEND", WeekendCalendar())
 julia> apply(RDates.CalendarAdj("WEEKEND", rd"0d", RDates.HolidayRoundingNearest()), Date(2021,7,10), cal_mgr)
 2021-07-09
 julia> apply(rd"0d@WEEKEND[NEAR]", Date(2021,7,10), cal_mgr)
