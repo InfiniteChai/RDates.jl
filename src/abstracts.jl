@@ -48,9 +48,9 @@ Determine whether the date requested is a holiday for this calendar or not.
 is_holiday(x::Calendar, ::Dates.Date) = error("$(typeof(x)) does not support is_holiday")
 
 """
-    holidays(calendar::Calendar, from::Dates.Date, to::Dates.Date)::Set{Dates.Date}
+    holidays(calendar::Calendar, from::Dates.Date, to::Dates.Date)::Vector{Bool}
 
-Get the set of all holidays in the calendar between two dates (inclusive)
+Get the vector of each day and whether its a holiday or not, inclusive of from and to.
 """
 holidays(::C, ::Dates.Date, ::Dates.Date) where {C<:Calendar} = error("holidays not implemented by $C")
 
@@ -60,7 +60,7 @@ holidays(::C, ::Dates.Date, ::Dates.Date) where {C<:Calendar} = error("holidays 
 
 Get the number of holidays in the calendar between two dates (inclusive)
 """
-holidaycount(cal::Calendar, from::Dates.Date, to::Dates.Date) = length(holidays(cal, from, to))
+holidaycount(cal::Calendar, from::Dates.Date, to::Dates.Date) = Base.sum(holidays(cal, from, to))
 
 
 """
