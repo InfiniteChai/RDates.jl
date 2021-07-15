@@ -113,8 +113,8 @@ end
 
 function is_holiday(cal::CachedCalendar, date::Dates.Date)
     if needsupdate(cal.cache, date, date)
-        d0 = Dates.Date(cal.period*div(Dates.year(date, cal.period)), 1, 1)
-        d1 = Dates.Date(cal.period*(1+div(Dates.year(date, cal.period))), 12, 31)
+        d0 = Dates.Date(cal.period*div(Dates.year(date), cal.period), 1, 1)
+        d1 = Dates.Date(cal.period*(1+div(Dates.year(date), cal.period)), 12, 31)
         updatecache!(cal, d0, d1)
     end
     t0 = (date-cal.cache.dtmin).value + 1
@@ -131,7 +131,7 @@ function holidaycount(cal::CachedCalendar, from::Dates.Date, to::Dates.Date)
     t0 = (from-cal.cache.dtmin).value + 1
     t1 = (to-from).value
 
-    Int(cal.cache.bdayscounter[t1+t0] - cal.cache.bdayscounter[t0] + cal.cache.bdays[t0])    
+    Int(cal.cache.bdayscounter[t1+t0] - cal.cache.bdayscounter[t0] + cal.cache.bdays[t0])
 end
 
 function holidays(cal::CachedCalendar, from::Dates.Date, to::Dates.Date)
