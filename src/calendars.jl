@@ -74,7 +74,7 @@ function updatecache!(cal::CachedCalendar, d0::Dates.Date, d1::Dates.Date)
             days = (cal.cache.dtmin-d0).value
             bdays = holidays(cal.calendar, d0, cal.cache.dtmin-Dates.Day(1))
             cal.cache.bdays = vcat(bdays, cal.cache.bdays)
-            counters = sum(bdays) .+ cal.cache.bdayscounter
+            counters = Base.sum(bdays) .+ cal.cache.bdayscounter
 
             lcounters = Vector{UInt32}(undef, days)
             lcounters[1] = UInt32(bdays[1])
@@ -94,7 +94,7 @@ function updatecache!(cal::CachedCalendar, d0::Dates.Date, d1::Dates.Date)
             for i in 2:days
                 @inbounds rcounters[i] = rcounters[i-1] + bdays[i]
             end
-            cal.cache.bdayscounter = vcat(counters, rcounters)
+            cal.cache.bdayscounter = vcat(cal.cache.bdayscounter, rcounters)
             cal.cache.dtmax = d1
         end
     else

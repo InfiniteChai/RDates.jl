@@ -22,6 +22,8 @@ setcachedcalendar!(cal_mgr, "CACHED WEEKEND", calendar(cal_mgr, "WEEKEND"))
         @test holidays(calendar(cal_mgr, "CACHED WEEKEND"), Date(2021,7,8), Date(2021,7,9)) == Bool[0, 0]
         @test holidaycount(calendar(cal_mgr, "CACHED WEEKEND"), Date(2021,7,4), Date(2021,7,20)) == 5
         @test bizdaycount(calendar(cal_mgr, "CACHED WEEKEND"), Date(2021,7,4), Date(2021,7,20)) == 12
+        @test holidays(calendar(cal_mgr, "CACHED WEEKEND"), Date(2031,1,30), Date(2031,2,3)) == Bool[0, 0, 1, 1, 0]
+        @test holidays(calendar(cal_mgr, "CACHED WEEKEND"), Date(2011,2,3), Date(2011,2,6)) == Bool[0, 0, 1, 1]
     end
 
     @testset "Next and Previous" begin
