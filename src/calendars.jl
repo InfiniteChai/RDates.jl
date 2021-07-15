@@ -165,7 +165,7 @@ function is_holiday(cal::JointCalendar, date::Dates.Date)
     )
 end
 function holidays(cal::JointCalendar, from::Dates.Date, to::Dates.Date)
-    hols = repeat([false], (to-from).value+1)
+    hols = Base.repeat([false], (to-from).value+1)
     for subcal in cal.calendars
         hols = hols .| holidays(subcal, from, to)
     end
